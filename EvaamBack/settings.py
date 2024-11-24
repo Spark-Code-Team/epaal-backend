@@ -37,6 +37,17 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+
+
+    # Local Apps:
+    "Admin",
+    "Blog",
+    "User",
+    "Transaction",
+    "Order",
+    "Role",
+    "Product",
 ]
 
 MIDDLEWARE = [
@@ -73,12 +84,19 @@ WSGI_APPLICATION = 'EvaamBack.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+import config
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql', 
+        'NAME': config.NAME,
+        'USER': config.USER,
+        'PASSWORD': config.PASSWORD,
+        'HOST': config.HOST,  
+        'PORT': '3306',
     }
 }
+
+AUTH_USER_MODEL = "User.CustomUser"
 
 
 # Password validation
@@ -123,6 +141,7 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
+MAX_UPLOAD_IMAGE_SIZE='1024000'
 
 import os
 import logging
