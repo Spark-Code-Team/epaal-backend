@@ -58,3 +58,13 @@ class Address(models.Model):
         db_table = 'address'
 
 
+class OTP(models.Model):
+    phone_number=models.CharField(max_length=11)
+    otp_code=models.CharField(max_length=8)
+    otp_expire=models.DateTimeField(null=False,blank=False)
+    max_try=models.IntegerField(default=3,max_length=2)
+    otp_for=models.CharField(max_length=50,default="login")
+    class Meta:
+        verbose_name = 'otp'
+        verbose_name_plural = 'otps'
+        db_table = 'otp'
