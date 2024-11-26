@@ -17,6 +17,7 @@ import random
 import string
 import re
 from .models import OTP
+from rest_framework_simplejwt.tokens import RefreshToken
 
 class UserRegistration(APIView):
     serializer_class = UserRegisterSerializer
@@ -40,13 +41,12 @@ class SendOTP(APIView):
         if request.data.get("phone_number") is None:
             return Response({"error":"send phone_number"},status=status.HTTP_400_BAD_REQUEST)
         phone_number=request.data["phone_number"]
-        if self.validate_phone_number(phone_number) is False:
-            return Response({"error":"phone number is not valid"},status=status.HTTP_400_BAD_REQUEST)
+        if not self.validate_phone_number(phone_number) :
+            return Response({"error":"phone number format is not valid"},status=status.HTTP_400_BAD_REQUEST)
         code=self.generate_otp()
         if OTP.objects.filter(phone_number=phone_number,otp_for="login").exists():
             otp=OTP.objects.get(phone_number=phone_number,otp_for="login")
             num_try=((timezone.now()-otp.otp_expire-datetime.timedelta(minutes=2))/datetime.timedelta(minutes=20))
-            print((num_try))
             if int(num_try)>0:
                 all_try=int(num_try)+otp.max_try
             else:
@@ -71,8 +71,52 @@ class SendOTP(APIView):
 
 
 class LoginView(APIView):
+    def validate_phone_number(self,phone_number: str):
+        pattern = r"^0(9[1-9]{1}[0-9]{1})\d{7}$"  
+        return bool(re.match(pattern, phone_number))
+    
     def post(self, request, *args, **kwargs):
-        pass
+        if request.data.get("phone_number") is None:
+            return Response({"error":"send phone_number"},status=status.HTTP_400_BAD_REQUEST)
+        if not self.validate_phone_number(request.data["phone_number"]):
+            return Response({"error":"phone number format is not valid"},status=status.HTTP_400_BAD_REQUEST)
+        if request.data.get("otp_code") is None:
+            return Response({"error":"send otp code"},status=status.HTTP_400_BAD_REQUEST)
+        if not OTP.objects.filter(phone_number=request.data["phone_number"],otp_for="login").exists():
+            return Response({"error":"first make an otp code for yourself"},status=status.HTTP_400_BAD_REQUEST)
+        otp=OTP.objects.get(phone_number=request.data["phone_number"],otp_for="login")
+        if timezone.now()>otp.otp_expire:
+            return Response({"error":"time of otp is expired"},status=status.HTTP_400_BAD_REQUEST)
+        if otp.otp_code==request.data["otp_code"]:
+            if CustomUser.objects.filter(phone_number=request.data["phone_number"]).exists():
+                user=CustomUser.objects.get(phone_number=request.data["phone_number"])
+                if user.has_two_factor:
+                    if request.data.get("password") is None:
+                        return Response({"two_factor":True,'refresh':None,'access':None},status=status.HTTP_406_NOT_ACCEPTABLE)
+                    else:
+                        if user.check_password(request.data["password"]):
+                            refresh=RefreshToken.for_user(user=user)
+                            return Response({"two_factor":None,'refresh':str(refresh),'access':str(refresh.access_token)},status=status.HTTP_200_OK)
+                        else:
+                            return  Response({"error":"password is not valid"},status=status.HTTP_400_BAD_REQUEST)
+                else:
+                    refresh=RefreshToken.for_user(user=user)
+                    return Response({"two_factor":None
+                                ,'refresh':str(refresh),
+                                'access':str(refresh.access_token)},status=status.HTTP_200_OK)
+
+            else:
+                user=CustomUser.objects.create(phone_number=request.data["phone_number"],role=Role.objects.get(name="user"))
+                refresh=RefreshToken.for_user(user=user)
+                return Response({"two_factor":None
+                                ,'refresh':str(refresh),
+                                'access':str(refresh.access_token)},status=status.HTTP_200_OK)
+        else:
+            return Response({"error":"the code is wrong"},status=status.HTTP_400_BAD_REQUEST)
+
+
+
+        
 
 
 class LogoutView(APIView):
