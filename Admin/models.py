@@ -3,9 +3,9 @@ from User.models import CustomUser
 # Create your models here.
 
 class Shop(models.Model):
-    shop_name = models.CharField(max_length=100)
-    shop_phone=models.CharField(max_length=11)
-    address=models.CharField(max_length=500)
+    shop_name = models.CharField(max_length=100,null=False,blank=False)
+    shop_phone=models.CharField(max_length=11,null=False,blank=False)
+    address=models.CharField(max_length=500,null=False,blank=False)
     bio=models.CharField(max_length=500)
     shop_admin=models.ForeignKey(CustomUser,on_delete=models.CASCADE, related_name="shop_admin")
 

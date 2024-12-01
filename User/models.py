@@ -11,8 +11,8 @@ from User.managers import UserManager
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
     id = models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')
-    first_name=models.CharField(max_length=50)
-    last_name=models.CharField(max_length=50)
+    first_name=models.CharField(max_length=50,null=True,blank=True)
+    last_name=models.CharField(max_length=50,null=True,blank=True)
     national_code=models.CharField( max_length=10,unique=True,null=True,blank=True)
     phone_number=models.CharField(max_length=11,unique=True,null=False,blank=False)
     is_man=models.BooleanField(null=True,blank=True)

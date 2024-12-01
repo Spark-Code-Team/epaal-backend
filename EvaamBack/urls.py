@@ -25,6 +25,7 @@ urlpatterns = [
 
     ##Apps url
     path("users/", include('User.urls', namespace='users')),
+    path("Admin/", include('Admin.urls', namespace='admins')),
 
     
 ]

@@ -26,6 +26,7 @@ class UserManager(BaseUserManager):
         )
         if password is not None:
             user.set_password(password)
+            user.has_two_factor=True
         user.save(using=self._db)
         user.referrer_code = int_to_unique_string(user.id)
         user.save(using=self._db)
