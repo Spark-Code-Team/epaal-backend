@@ -8,7 +8,7 @@ class Shop(models.Model):
     address=models.CharField(max_length=500,null=False,blank=False)
     bio=models.CharField(max_length=500)
     shop_admin=models.ForeignKey(CustomUser,on_delete=models.CASCADE, related_name="shop_admin")
-
+    created_at = models.DateTimeField(auto_now_add=True)
     class Meta:
         verbose_name = 'shop'
         verbose_name_plural = 'shops'

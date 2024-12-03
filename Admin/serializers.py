@@ -11,3 +11,20 @@ class ShopSerializer(serializers.ModelSerializer):
         extra_kwargs={
             'bio':{"required":False}
         }
+
+
+
+class AllShopSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Shop
+        fields = ('id','shop_name',)
+
+        
+class SingleShopSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Shop
+        fields = "__all__"
+
+        
