@@ -23,15 +23,11 @@ class ShopView(APIView):
                     shop_ser=ShopSerializer(data=request.data)
                     if shop_ser.is_valid():
                         shop=shop_ser.save()
-                        created_shop=ShopSerializer(instance=shop,status=status.HTTP_200_OK)
+                        created_shop=ShopSerializer(instance=shop)
+                        return Response(created_shop.data,status=status.HTTP_200_OK)
                     else:
-                        return Response(shop_ser.errors,status=status.HTTP_400_BAD_REQUEST)
+                        raise ValueError("Shop data is invalid: " + str(shop_ser.errors))
                 else:
-                    return Response(user_ser.errors,status=status.HTTP_400_BAD_REQUEST)
-            return Response(created_shop.data,status=status.HTTP_200_OK)
+                    raise ValueError("User data is invalid: " + str(user_ser.errors))
         except Exception as e:
-            return Response({ str(e)},status=status.HTTP_400_BAD_REQUEST)
-
-
-
-            
+            return Response({"error":str(e)},status=status.HTTP_400_BAD_REQUEST)
