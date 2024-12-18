@@ -16,9 +16,24 @@ def validate_image_size(image):
 def product_image_directory_path(instance, filename):
     return 'Media/product/{0}/pictures/{1}'.format(str(instance.id), filename) 
 
-class ProductTopic(models.Model):
+class ToplevelTopic(models.Model):
     name=models.CharField(max_length=100)
 
+    class Meta:
+        verbose_name = 'toplevel_topic'
+        verbose_name_plural = 'toplevel_topics'
+        db_table = 'toplevel_topic'
+class MidlevelTopic(models.Model):
+    name=models.CharField(max_length=100)
+    toplevel_topic=models.ForeignKey(ToplevelTopic,on_delete=models.CASCADE,related_name="midlevel_toplevel")
+
+    class Meta:
+        verbose_name = 'midlevel_topic'
+        verbose_name_plural = 'midlevel_topics'
+        db_table = 'midlevel_topic'
+class ProductTopic(models.Model):
+    name=models.CharField(max_length=100)
+    midlevel_topic=models.ForeignKey(MidlevelTopic,on_delete=models.CASCADE,related_name="product_topic_midlevel_topic")
     class Meta:
         verbose_name = 'product_topic'
         verbose_name_plural = 'product_topics'
