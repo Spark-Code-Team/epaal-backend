@@ -60,3 +60,20 @@ class SingleShopView(APIView):
             return Response({"data":ser_data.data},status=status.HTTP_200_OK)
         else:
             return Response({"error":"shop not found"},status=status.HTTP_404_NOT_FOUND)
+
+    def put(self,request):
+        if (request.user.role.name != "admin") or (request.user.is_admin is not True):
+            return Response({"error":"you are not admin"},status=status.HTTP_400_BAD_REQUEST)
+        if request.data.get("shop_id") is None or request.data["shop_id"] is None:
+            return Response({"error":"send shop_id"},status=status.HTTP_400_BAD_REQUEST)
+        if Shop.objects.filter(id=request.data["shop_id"]).exists():
+            shop=Shop.objects.get(id=request.data["shop_id"]) 
+            edited_shop=ShopSerializer(instance=shop,data=request.data,partial=True)
+            if edited_shop.is_valid():
+                edited_shop.save()
+                return Response({"data":edited_shop.data},status=status.HTTP_200_OK)
+            else:
+                return Response({"error":edited_shop.errors},status=status.HTTP_400_BAD_REQUEST)
+                
+        else:
+            return Response({"error":"shop not found"},status=status.HTTP_404_NOT_FOUND)

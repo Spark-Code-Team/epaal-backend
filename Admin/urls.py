@@ -6,5 +6,5 @@ urlpatterns = [
 
     path("create_shop", ShopView.as_view(), name="create_shop"),
     path("get_all_shops", ALLShopView.as_view(), name="get_all_shop_veiw"),
-    path("get_shop", SingleShopView.as_view(), name="get_shop_veiw"),
+    path("shop", SingleShopView.as_view(), name="get_shop_veiw"),
 ]
