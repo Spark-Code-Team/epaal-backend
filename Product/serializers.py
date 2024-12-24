@@ -12,13 +12,15 @@ class ToplevelTopicSerializer(serializers.ModelSerializer):
 
         
 class MidlevelTopicSerializer(serializers.ModelSerializer):
-    toplevel_topic=ToplevelTopicSerializer()
+    toplevel_topic=ToplevelTopicSerializer
     class Meta:
         model = MidlevelTopic
         fields = ('id','name','toplevel_topic',)
+        
 
-class TopicSerializer(serializers.ModelSerializer):
-    midlevel_topic=MidlevelTopicSerializer()
+
+class ProductTopicSerializer(serializers.ModelSerializer):
+    midlevel_topic=MidlevelTopicSerializer
     class Meta:
         model = ProductTopic
         fields = ('id','name','midlevel_topic',)
