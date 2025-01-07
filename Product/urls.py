@@ -1,6 +1,6 @@
 from django.urls import path, include, re_path
 
-from .views import ALLCategoryView,ShopLandingView,CreateMidlevelTopicView,CreateProductTopicView,CreateToplevelTopicView,GetMidlevelTopicView,GetToplevelTopicView,GetProductTopicView
+from .views import ALLCategoryView,ShopLandingView,CreateMidlevelTopicView,CreateProductTopicView,CreateToplevelTopicView,GetMidlevelTopicView,GetToplevelTopicView,GetProductTopicView,CreateLowLevelTopicView,GetLowlevelTopicView
 app_name = 'Product'
 urlpatterns = [
 
@@ -8,8 +8,10 @@ urlpatterns = [
     path("shop_landing", ShopLandingView.as_view(), name="shop_landing"),
     path("create_midlevel_topic", CreateMidlevelTopicView.as_view(), name="create_midlevel_topic"),
     path("create_toplevel_topic", CreateToplevelTopicView.as_view(), name="create_toplevel_topic"),
+    path("create_lowlevel_topic", CreateLowLevelTopicView.as_view(), name="create_lowlevel_topic"),
     path("create_product_topic", CreateProductTopicView.as_view(), name="create_product_topic"),
     path("get_midlevel_topic", GetMidlevelTopicView.as_view(), name="get_midlevel_topic"),
     path("get_toplevel_topic", GetToplevelTopicView.as_view(), name="get_toplevel_topic"),
+    path("get_lowlevel_topic", GetLowlevelTopicView.as_view(), name="get_lowlevel_topic"),
     path("get_product_topic", GetProductTopicView.as_view(), name="get_product_topic")
 ]

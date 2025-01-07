@@ -16,10 +16,14 @@ class ShopView(APIView):
             return Response({"error":"you are not admin"},status=status.HTTP_400_BAD_REQUEST)
         try:
             with transaction.atomic():
+                request.data["role"]={"name":"shop_admin"}
                 user_ser=UserRegisterSerializer(data=request.data)
-                request.data["role"]={"name":"admin_shop"}
+                if (request.data.get("referrer_code") is not None) and(request.data["referrer_code"]):
+                    referrer_code=request.data["referrer_code"]
+                else:
+                    referrer_code=None
                 if user_ser.is_valid():
-                    shop_admin=user_ser.save()
+                    shop_admin=user_ser.create(validated_data=user_ser.validated_data,role={"name":"shop_admin"},referrer_code=referrer_code)
                     request.data["shop_admin"]=shop_admin.id
                     shop_ser=ShopSerializer(data=request.data)
                     if shop_ser.is_valid():

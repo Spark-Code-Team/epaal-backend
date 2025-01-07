@@ -23,6 +23,9 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         }
 
     def create(self, validated_data, referrer_code=None, role=None):
+        print(role)
+        print(validated_data)
+        print(referrer_code)
         if referrer_code:
             inviter_id = CustomUser.objects.filter(referrer_code=referrer_code).values_list('id', flat=True).first()
             if inviter_id is not None:
@@ -34,9 +37,11 @@ class UserRegisterSerializer(serializers.ModelSerializer):
             inviter_id = None
         
         if role:
+            print("1111111111111111111111111111111111")
             if role["name"] in ["shop_admin", "user"]:
                 user_role = Role.objects.get(name=role["name"])
         else:
+            print("2222222222222222222222222222222222")
             user_role=Role.objects.get(name="user")
         if validated_data.get('password') and validated_data['password']:
             return CustomUser.objects.create_user(

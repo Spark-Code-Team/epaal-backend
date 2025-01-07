@@ -1,6 +1,6 @@
 HOST='localhost'
 USER='root'
-NAME='test22'
+NAME='ev3'
 PASSWORD=''
 REDIS='redis://localhost:6379/0'
 

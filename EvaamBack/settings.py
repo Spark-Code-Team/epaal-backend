@@ -43,7 +43,6 @@ INSTALLED_APPS = [
 
     # Local Apps:
     "Admin",
-    "Blog",
     "User",
     "Transaction",
     "Order",

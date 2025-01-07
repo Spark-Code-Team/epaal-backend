@@ -33,7 +33,7 @@ class UserManager(BaseUserManager):
         return user
 
     
-    def create_superuser(self,phone_number, national_code=None, password=None,role=Role.objects.get(name="admin")):
+    def create_superuser(self,phone_number, national_code=None, password=None,role=None):
         user = self.create_user(
             first_name="admin",
             last_name="admin",
