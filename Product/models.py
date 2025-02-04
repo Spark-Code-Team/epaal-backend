@@ -132,9 +132,8 @@ class ProductTopic(models.Model):
 
 class StaticField(models.Model):
     name=models.CharField(max_length=100)
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE,default=None)
     object_id = models.PositiveIntegerField(default=0)
-    content_object = GenericForeignKey('content_type', 'object_id')
+    topic_level=models.IntegerField(default=None)
     is_filter=models.BooleanField(default=False)
     is_choosable=models.BooleanField(default=False)
     class Meta:
@@ -165,7 +164,7 @@ class ProductPicture(models.Model):
 
 
 
-
+#! must deleted
 class ProductSpecification(models.Model):
     key=models.CharField(max_length=100)
     value=models.CharField(max_length=100)

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import ToplevelTopic,MidlevelTopic,ProductTopic,Product,LowlevelTopic
+from .models import ToplevelTopic,MidlevelTopic,ProductTopic,Product,LowlevelTopic,StaticField
 
 
 
@@ -77,3 +77,36 @@ class All_ToplevelSerializer(serializers.ModelSerializer):
             return None
         ser_data=All_MidlevelSerializer(instance=MidlevelTopic.objects.filter(toplevel_topic=obj.id),many=True)
         return ser_data.data
+
+
+class CreateFieldSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = StaticField
+        fields = ("id","name",'is_filter','is_choosable','topic_level','object_id')
+
+
+class GetFieldSerializer(serializers.ModelSerializer):
+    object=serializers.SerializerMethodField()
+    class Meta:
+        model = StaticField
+        fields = ("id","name",'is_filter','is_choosable','object','topic_level','object_id')
+
+    def get_object(self,obj):
+        if obj.topic_level==2:
+            if MidlevelTopic.objects.filter(id=obj.object_id).exists():
+                return MidlevelTopicSerializer(instance=MidlevelTopic.objects.get(id=obj.object_id)).data
+            else:
+                return None
+        elif obj.topic_level==3:
+            if LowlevelTopic.objects.filter(id=obj.object_id).exists():
+                return LowlevelTopicSerializer(instance=LowlevelTopic.objects.get(id=obj.object_id)).data
+            else:
+                return None  
+        elif obj.topic_level==4:
+            if ProductTopic.objects.filter(id=obj.object_id).exists():
+                return ProductTopicSerializer(instance=ProductTopic.objects.get(id=obj.object_id)).data
+            else:
+                return None
+        else:
+            return None
+            
