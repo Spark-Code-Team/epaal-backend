@@ -1,8 +1,0 @@
-{
-    "app": "e-vaam-back",
-    "port": 80,
-    "build": {
-      "location": "iran"
-    },
-    "disks": []
-  }
