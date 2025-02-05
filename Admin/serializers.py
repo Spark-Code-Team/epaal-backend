@@ -1,6 +1,6 @@
 from rest_framework import serializers
-from .models import Shop
-
+from .models import Shop,Provider,ProviderBranch
+from Product.models import MidlevelTopic,MidlevelTopicProviderBranch
 
 class ShopSerializer(serializers.ModelSerializer):
     
@@ -29,7 +29,22 @@ class AllShopSerializer(serializers.ModelSerializer):
         model = Shop
         fields = ('id','shop_name',)
 
+
+class ProviderBranchSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = ProviderBranch
+        fields = ('id','name')
         
+class MidlevelTopicProviderBranchSerializer(serializers.ModelSerializer):
+    provider_branch=ProviderBranchSerializer()
+    
+    class Meta:
+        model = MidlevelTopicProviderBranch
+        fields = ('id','provider_branch')
+
+
+
 class SingleShopSerializer(serializers.ModelSerializer):
     
     class Meta:

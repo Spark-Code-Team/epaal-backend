@@ -1,5 +1,5 @@
 from django.db import models
-from Admin.models import Shop
+from Admin.models import Shop,ProviderBranch
 from EvaamBack import settings
 from django.template.defaultfilters import filesizeformat
 from django.core.validators import ValidationError, FileExtensionValidator
@@ -164,21 +164,10 @@ class ProductPicture(models.Model):
 
 
 
-#! must deleted
-class ProductSpecification(models.Model):
-    key=models.CharField(max_length=100)
-    value=models.CharField(max_length=100)
-
-    class Meta:
-        verbose_name = 'product_specification'
-        verbose_name_plural = 'Product_specifications'
-        db_table = 'product_specification'
 
 
 class Product(models.Model):
     name = models.CharField(max_length=100)
-    price=models.CharField(max_length=20)
-    discount=models.IntegerField(max_length=3)
     shop=models.ForeignKey(Shop,on_delete=models.CASCADE, related_name="product_shop")
     product_topic=models.ForeignKey(ProductTopic,on_delete=models.CASCADE, related_name="shop_product_topic")
     is_in_event=models.BooleanField(default=False)
@@ -189,8 +178,9 @@ class Product(models.Model):
     rate=models.IntegerField(default=0)
     num_of_rates=models.IntegerField(default=0)
     creator_id=models.ForeignKey(CustomUser,on_delete=models.CASCADE,related_name="creator_id")
-    product_specification=models.ManyToManyField(ProductSpecification,null=True,blank=True)
     product_picture=models.ManyToManyField(ProductPicture,null=True,blank=True)
+    admin_confirm=models.BooleanField(default=False)
+    report_message=models.CharField(max_length=500)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -200,16 +190,42 @@ class Product(models.Model):
         db_table = 'product'
 
 
-
-#! must delete
-class ProductColor(models.Model):
-    name=models.CharField(max_length=100)
+class ProductInstance(models.Model):
+    product=models.ForeignKey(Product,on_delete=models.CASCADE,related_name="product_instance")
+    price=models.FloatField(default=0.0)
+    discount=models.IntegerField(default=0)
+    capacity=models.IntegerField(default=0)
 
     class Meta:
-        verbose_name = 'product_color'
-        verbose_name_plural = 'product_colors'
-        db_table = 'product_color'
-#! must delete
-class AvailableProduct(models.Model):
-    product=models.ForeignKey(Product,on_delete=models.CASCADE,related_name="availbal_product")
-    color=models.ForeignKey(ProductColor,on_delete=models.CASCADE,related_name="availbal_product_color")
+        verbose_name = 'product_instance'
+        verbose_name_plural = 'product_instances'
+        db_table = 'product_instance'
+
+class ProductStaticField(models.Model):
+    product=models.ForeignKey(Product,on_delete=models.CASCADE,related_name="product_static_field")
+    field=models.ForeignKey(StaticField,on_delete=models.CASCADE,related_name="product_static_field")
+    field_value=models.ForeignKey(FiledValue,on_delete=models.CASCADE,related_name="product_static_field")
+    value=models.CharField(max_length=250)
+    class Meta:
+        verbose_name = 'product_static_field'
+        verbose_name_plural = 'product_static_fields'
+        db_table = 'product_static_field'
+
+class ProductDynamicField(models.Model):
+    product_instance=models.ForeignKey(ProductInstance,on_delete=models.CASCADE,related_name="product_dynamic_field")
+    field=models.ForeignKey(StaticField,on_delete=models.CASCADE,related_name="product_dynamic_field")
+    field_value=models.ForeignKey(FiledValue,on_delete=models.CASCADE,related_name="product_dynamic_field")
+    value=models.CharField(max_length=250)
+    class Meta:
+        verbose_name = 'product_dynamic_field'
+        verbose_name_plural = 'product_dynamic_fields'
+        db_table = 'product_dynamic_field'
+
+class MidlevelTopicProviderBranch(models.Model):
+    midlevel_topic=models.ForeignKey(MidlevelTopic,on_delete=models.CASCADE,related_name="midlevel_topic_provider_branch",null=False,blank=False)
+    provider_branch=models.ForeignKey(ProviderBranch,on_delete=models.CASCADE,related_name="provider_branch_midlevel_topic",null=False,blank=False)
+
+    class Meta:
+        verbose_name = 'midlevel_topic_provider_branch'
+        verbose_name_plural = 'midlevel_topic_provider_branchs'
+        db_table = 'midlevel_topic_provider_branch'

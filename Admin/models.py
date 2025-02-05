@@ -28,6 +28,22 @@ class Shop(models.Model):
         verbose_name_plural = 'shops'
         db_table = 'shop'
 
+class Provider(models.Model):
+    name=models.CharField(max_length=100,null=False,blank=False)
 
+    class Meta:
+        verbose_name = 'provider'
+        verbose_name_plural = 'providers'
+        db_table = 'provider'
 
-
+class ProviderBranch(models.Model):
+    name=models.CharField(max_length=100,null=False,blank=False)
+    user_name=models.CharField(max_length=100,null=False,blank=False)
+    password=models.CharField(max_length=100,null=False,blank=False)
+    provider=models.ForeignKey(Provider,on_delete=models.CASCADE,related_name="provider_branch")
+    api_url=models.CharField(max_length=500,null=False,blank=False)
+    percent=models.FloatField(default=0.0)
+    class Meta:
+        verbose_name = 'provider_branch'
+        verbose_name_plural = 'provider_branchs'
+        db_table = 'provider_branch'

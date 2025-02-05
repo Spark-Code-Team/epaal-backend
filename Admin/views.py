@@ -4,9 +4,10 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
 from django.db import IntegrityError, transaction
-from .models import Shop
+from .models import Shop,Provider,ProviderBranch
+from Product.models import MidlevelTopic,MidlevelTopicProviderBranch
 from User.serializers import UserRegisterSerializer
-from .serializers import ShopSerializer,AllShopSerializer,SingleShopSerializer
+from .serializers import ShopSerializer,AllShopSerializer,SingleShopSerializer,MidlevelTopicProviderBranchSerializer
 from django.db.models.signals import pre_save
 # Create your views here.
 class ShopView(APIView):
@@ -81,3 +82,24 @@ class SingleShopView(APIView):
                 
         else:
             return Response({"error":"shop not found"},status=status.HTTP_404_NOT_FOUND)
+        
+class GetBranchOneMidTopicView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self,request):
+        if request.user.role.name != "admin":
+            return Response({"error":"you are not admin"},status=status.HTTP_400_BAD_REQUEST)
+        if (request.query_params.get("midlevel_topic") is None)or (request.query_params["midlevel_topic"] == ""):
+            return Response({"error":"send midlevel_topic"},status=status.HTTP_400_BAD_REQUEST)
+        if MidlevelTopic.objects.filter(id=request.query_params["midlevel_topic"]).exists():
+            midlevel_topic=MidlevelTopic.objects.get(id=request.query_params["midlevel_topic"])
+            if MidlevelTopicProviderBranch.objects.filter(midlevel_topic=midlevel_topic).exists():
+                provider_branches=MidlevelTopicProviderBranch.objects.filter(midlevel_topic=midlevel_topic)
+                ser_data=MidlevelTopicProviderBranchSerializer(instance=provider_branches,many=True)
+                return Response({"data":ser_data.data},status=status.HTTP_200_OK)
+            else:
+                return Response({"error":"provider branch not found"},status=status.HTTP_404_NOT_FOUND)
+
+        else:
+            return Response({"error":"midlevel_topic not found"},status=status.HTTP_404_NOT_FOUND)
+
