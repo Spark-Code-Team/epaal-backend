@@ -1,17 +1,17 @@
-HOST='localhost'
-USER='root'
-NAME='ev3'
-PASSWORD=''
-REDIS='redis://localhost:6379/0'
+# HOST='localhost'
+# USER='root'
+# NAME='ev3'
+# PASSWORD=''
+# REDIS='redis://localhost:6379/0'
 
 #? Liara DB:
-# HOST='kheilisabz-db'
-# USER='root'
-# NAME=''
-# PASSWORD=''
+HOST='evaam-database'
+USER='root'
+NAME='affectionate_faraday'
+PASSWORD='bnnnUkW28XLIfLZsZ6UdIkIU'
 # REDIS="r"
 
-#? kheilisabz test db:
+#? e-vaam test db:
 # HOST='localhost'
 # USER=''
 # NAME=''
