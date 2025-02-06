@@ -3,7 +3,7 @@
 # NAME='ev3'
 # PASSWORD=''
 # REDIS='redis://localhost:6379/0'
-
+ 
 #? Liara DB:
 HOST='evaam-database'
 USER='root'
