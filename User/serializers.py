@@ -23,9 +23,7 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         }
 
     def create(self, validated_data, referrer_code=None, role=None):
-        print(role)
-        print(validated_data)
-        print(referrer_code)
+
         if referrer_code:
             inviter_id = CustomUser.objects.filter(referrer_code=referrer_code).values_list('id', flat=True).first()
             if inviter_id is not None:

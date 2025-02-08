@@ -35,6 +35,11 @@ class ProviderBranchSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProviderBranch
         fields = ('id','name')
+class ProviderBranchWithProviderSerializer(serializers.ModelSerializer):
+    provider=ProviderBranchSerializer(read_only=True)
+    class Meta:
+        model = ProviderBranch
+        fields = ('id','name',"provider")
         
 class MidlevelTopicProviderBranchSerializer(serializers.ModelSerializer):
     provider_branch=ProviderBranchSerializer()
