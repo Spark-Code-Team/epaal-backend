@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     "Order",
     "Role",
     "Product",
+    "Shop",
 
     # Modules:
     'rest_framework',
