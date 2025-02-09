@@ -8,7 +8,7 @@
 HOST='evaam-database'
 USER='root'
 NAME='affectionate_faraday'
-PASSWORD='bnnnUkW28XLIfLZsZ6UdIkIU'
+PASSWORD='bnnnUkW28XLIfLZsZ6UdIkIU' 
 # REDIS="r"
  
 #? e-vaam test db:
