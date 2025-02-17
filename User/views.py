@@ -14,6 +14,7 @@ import string
 import re
 from .models import OTP
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.permissions import IsAuthenticated
 
 class UserRegistration(APIView):
     serializer_class = UserRegisterSerializer
@@ -127,6 +128,8 @@ class LogoutView(APIView):
 
 
 class HomeView(APIView):
+    permission_classes = [IsAuthenticated]
+
     def get(self, request):
         ser_data=HomeSerializer(instance=request.user)
         return Response(ser_data.data,status=status.HTTP_200_OK)
