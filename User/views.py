@@ -1,6 +1,6 @@
 
 from User.models import CustomUser
-from User.serializers import UserRegisterSerializer
+from User.serializers import HomeSerializer, UserRegisterSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -125,4 +125,9 @@ class LogoutView(APIView):
         except Exception as e:
             return Response({"error":str(e)},status=status.HTTP_400_BAD_REQUEST) 
 
+
+class HomeView(APIView):
+    def get(self, request):
+        ser_data=HomeSerializer(instance=request.user)
+        return Response(ser_data.data,status=status.HTTP_200_OK)
 
