@@ -1,4 +1,5 @@
 
+import requests
 from User.models import CustomUser
 from User.serializers import HomeSerializer, UserRegisterSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -64,7 +65,12 @@ class SendOTP(APIView):
             OTP.objects.create(phone_number=phone_number,otp_for="login",otp_code=code,otp_expire=timezone.now() + datetime.timedelta(minutes=2),max_try=2)
             
         ## SMS HANDLING 
-        return Response({"code":code},status=status.HTTP_200_OK)
+        data = {'from': '50002710054854', 'to': request.data["phone_number"], 'text': f'کدِ ورود شما به ایوام \n {code}'}
+        response = requests.post('https://console.melipayamak.com/api/send/simple/2d475adf0f3f4fa3bf59f1a99eed0712', json=data)
+        if response.json()["status"]=="ارسال موفق بود":
+            return Response({"message":"با موفقیت ارسال شد"},status=status.HTTP_200_OK)
+        else:
+            return Response({"message":"ارسال کد با خطایی مواجه شد."},status=status.HTTP_400_BAD_REQUEST)
 
 
 class LoginView(APIView):
