@@ -28,11 +28,11 @@ class UserRegistration(APIView):
 
 class SendOTP(APIView):
     def generate_otp(self):
-        return ''.join(random.choices(string.ascii_letters + string.digits, k=8))
+        return ''.join(random.choices(string.digits, k=8))
 
 
     def validate_phone_number(self,phone_number: str):
-        pattern = r"^0(9[1-9]{1}[0-9]{1})\d{7}$"  
+        pattern = r"^0(9[0-9]{1}[0-9]{1})\d{7}$"  
         return bool(re.match(pattern, phone_number))
 
     def post(self, request):
