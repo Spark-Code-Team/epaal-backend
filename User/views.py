@@ -39,8 +39,8 @@ class SendOTP(APIView):
         if request.data.get("phone_number") is None:
             return Response({"error":"send phone_number"},status=status.HTTP_400_BAD_REQUEST)
         phone_number=request.data["phone_number"]
-        if not self.validate_phone_number(phone_number) :
-            return Response({"error":"phone number format is not valid"},status=status.HTTP_400_BAD_REQUEST)
+        # if not self.validate_phone_number(phone_number) :
+        #     return Response({"error":"phone number format is not valid"},status=status.HTTP_400_BAD_REQUEST)
         code=self.generate_otp()
         if OTP.objects.filter(phone_number=phone_number,otp_for="login").exists():
             otp=OTP.objects.get(phone_number=phone_number,otp_for="login")
@@ -81,8 +81,8 @@ class LoginView(APIView):
     def post(self, request, *args, **kwargs):
         if request.data.get("phone_number") is None:
             return Response({"error":"send phone_number"},status=status.HTTP_400_BAD_REQUEST)
-        if not self.validate_phone_number(request.data["phone_number"]):
-            return Response({"error":"phone number format is not valid"},status=status.HTTP_400_BAD_REQUEST)
+        # if not self.validate_phone_number(request.data["phone_number"]):
+        #     return Response({"error":"phone number format is not valid"},status=status.HTTP_400_BAD_REQUEST)
         if request.data.get("otp_code") is None:
             return Response({"error":"send otp code"},status=status.HTTP_400_BAD_REQUEST)
         if not OTP.objects.filter(phone_number=request.data["phone_number"],otp_for="login").exists():
