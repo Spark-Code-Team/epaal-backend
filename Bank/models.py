@@ -44,3 +44,40 @@ class FacilityDocument(models.Model):
         verbose_name = 'facility_document'
         verbose_name_plural = 'facility_documents'
         db_table = 'facility_document'
+
+class Grade(models.Model):
+    name=models.CharField(max_length=100,null=False,blank=False)
+
+class SubGrade(models.Model):
+    name=models.CharField(max_length=100,null=False,blank=False)
+    grade=models.ForeignKey(Grade,on_delete=models.CASCADE,related_name="grade_id_sub_grade")
+
+class FacilityInstallmentNumber(models.Model):
+    facility=models.ForeignKey(Facility,on_delete=models.CASCADE,related_name="facility_id_facility_installment_number")
+    number_of_installment=models.IntegerField()
+    class Meta:
+        verbose_name = 'facility_installment_number'
+        verbose_name_plural = 'facility_installment_numbers'
+        db_table = 'facility_installment_number'
+
+class UserFacility(models.Model):
+    user=models.ForeignKey('User.CustomUser',on_delete=models.CASCADE,related_name="user_id_user_facility")
+    facility=models.ForeignKey(Facility,on_delete=models.CASCADE,related_name="facility_id_user_facility")
+    status=models.CharField(max_length=100)
+    max_value=models.CharField(max_length=100,null=False,blank=False)
+    evaam_subscripton_percent=models.FloatField(default=3.5)
+    pre_payment_percent=models.FloatField(default=3.5)
+    bank_interest_percent=models.FloatField(default=23)
+    level=models.CharField(max_length=100)
+    level_number=models.IntegerField()
+    choosen_value=models.CharField(max_length=100)
+    sub_grade=models.ForeignKey(SubGrade,on_delete=models.CASCADE,related_name="sub_grade_id_user_facility")
+    choosen_facility_installment_number=models.ForeignKey(FacilityInstallmentNumber,on_delete=models.CASCADE,related_name="facility_installment_number_id_user_facility")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    class Meta:
+        verbose_name = 'user_facility'
+        verbose_name_plural = 'user_facilities'
+        db_table = 'user_facility'
+
+
