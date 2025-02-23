@@ -7,8 +7,8 @@
 #? Liara DB:
 HOST='evaam-database'
 USER='root'
-NAME='affectionate_faraday'
-PASSWORD='bnnnUkW28XLIfLZsZ6UdIkIU' 
+NAME='nice_borg'
+PASSWORD='2N1UYN7tvG3bWhayTuWUyHM2' 
 REDIS="r"
 JIBIT_API_KEY="cvYDi4nzvP"
 JIBIT_SECRET_KEY="5Ioyhh9MDbjA19_JQi16CJWI9"
