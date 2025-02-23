@@ -239,11 +239,43 @@
         }
     },
     {
+        "model":"Bank.SubGrade",
         "pk":18,
         "fields":{
             "grade":6,
             "name":"F3"
         }
+    },
+    {
+        "model":"Bank.FacilityInstallmentNumber",
+        "pk":1,
+        "fields":{
+            "facility":1,
+            "number_of_installment":6        
+        }
+    },
+    {
+        "model":"Bank.FacilityInstallmentNumber",
+        "pk":1,
+        "fields":{
+            "facility":1,
+            "number_of_installment":12        
+        }
+    },
+    {
+        "model":"Bank.FacilityInstallmentNumber",
+        "pk":1,
+        "fields":{
+            "facility":1,
+            "number_of_installment":18     
+        }
+    },
+    {
+        "model":"Bank.FacilityInstallmentNumber",
+        "pk":1,
+        "fields":{
+            "facility":1,
+            "number_of_installment":24        
+        }
     }
-
 ]
