@@ -21,5 +21,43 @@
         "fields":{
             "name":"user"
         }
+    },
+    {
+        "model":"Bank.Bank",
+        "pk":1,
+        "fields":{
+            "name":"کارآفرین"
+        }
+    },
+    {
+        "model":"Bank.Facility",
+        "pk":1,
+        "fields":{
+            "name":"تسهیلات HiBank ",
+            "bank":1,
+            "max_value":"100000000",
+            "evaam_subscripton_percent":3.5,
+            "pre_payment_percent":3.5,
+            "bank_interest_percent":23
+
+        }
+    },
+    {
+        "model":"Bank.FacilityDocument",
+        "pk":1,
+        "fields":{
+            "name":"چک",
+            "facility":1,
+            "type":"file"
+        }
+    },
+    {
+        "model":"Bank.FacilityDocument",
+        "pk":2,
+        "fields":{
+            "name":"شماره صیادی چک",
+            "facility":1,
+            "type":"input"
+        }
     }
 ]
