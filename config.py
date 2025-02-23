@@ -9,8 +9,9 @@ HOST='evaam-database'
 USER='root'
 NAME='affectionate_faraday'
 PASSWORD='bnnnUkW28XLIfLZsZ6UdIkIU' 
-# REDIS="r"
- 
+REDIS="r"
+JIBIT_API_KEY="cvYDi4nzvP"
+JIBIT_SECRET_KEY="5Ioyhh9MDbjA19_JQi16CJWI9"
 #? e-vaam test db:
 # HOST='localhost'
 # USER=''

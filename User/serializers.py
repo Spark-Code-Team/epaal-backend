@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from Role.models import Role
 from Role.serializers import RoleSerializer
-from .models import CustomUser
+from .models import Address, CustomUser,TempAddress
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth import password_validation
 
@@ -131,3 +131,19 @@ class HomeSerializer(serializers.ModelSerializer):
     class Meta:
             model = CustomUser
             fields = ('id','first_name','last_name','phone_number','role',)
+
+
+class ConfirmationSerializer(serializers.ModelSerializer):
+    class Meta:
+            model = CustomUser
+            fields = ('id','first_name','last_name','phone_number',"national_code","phone_number",'birthday_date')
+
+class TempAdressSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TempAddress
+        fields = ("__all__")
+
+class AddressSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Address
+        fields = ("__all__")

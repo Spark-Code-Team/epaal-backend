@@ -16,6 +16,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     national_code=models.CharField( max_length=10,unique=True,null=True,blank=True)
     phone_number=models.CharField(max_length=11,unique=True,null=False,blank=False)
     is_man=models.BooleanField(null=True,blank=True)
+    birthday_date=models.DateField(null=True,blank=True)
     referrer_code = models.CharField(max_length=90, blank=True, null=True)
     inviter = models.ForeignKey('self', on_delete=models.CASCADE, related_name='invited', blank=True, null=True)
     role = models.ForeignKey(to=Role, on_delete=models.CASCADE, null=True, blank=False)
@@ -23,7 +24,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     is_admin = models.BooleanField(default=False)
     has_two_factor=models.BooleanField(default=False)
     confirmed_data=models.BooleanField(default=False)
-    compolete_data=models.BooleanField(default=False)
+    confirmed_address=models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     deleted_at = models.DateTimeField(null=True)
@@ -46,10 +47,8 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
 
 class Address(models.Model):
-    city=models.CharField(max_length=100)
-    province=models.CharField(max_length=100)
-    detail=models.CharField(max_length=500)
-    postal_ceod=models.CharField(max_length=10)
+    address=models.CharField(max_length=1000)
+    postal_code=models.CharField(max_length=10)
     user=models.ForeignKey(CustomUser,on_delete=models.CASCADE,related_name="user_address")
 
     class Meta:
@@ -68,3 +67,18 @@ class OTP(models.Model):
         verbose_name = 'otp'
         verbose_name_plural = 'otps'
         db_table = 'otp'
+
+class JibitToken(models.Model):
+    access_token=models.CharField(max_length=400)
+    refresh_token=models.CharField(max_length=400)
+    created_at=models.DateTimeField(auto_now_add=True)
+
+
+    class Meta:
+        verbose_name = 'jibit_token'
+        verbose_name_plural = 'jibit_tokens'
+        db_table = 'jibit_token'
+
+class TempAddress(models.Model):
+    postal_code=models.CharField(max_length=10)
+    address=models.CharField(max_length=1000)
