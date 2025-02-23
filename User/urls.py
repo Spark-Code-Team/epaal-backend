@@ -6,7 +6,8 @@ from User.views import (
     SendOTP,
     LogoutView,
     ConfirmInformationView,
-    ShowAddressView
+    ShowAddressView,
+    ProfileView
 )
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -24,5 +25,6 @@ urlpatterns = [
     path('confirm_information/', ConfirmInformationView.as_view(), name='confirm_information'),
     path('show_address/', ShowAddressView.as_view(), name='show_address'),
     path('confirm_address/', ConfirmAddressView.as_view(), name='confirm_address'),
+    path('profile/', ProfileView.as_view(), name='profile'),
 
 ]

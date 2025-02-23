@@ -251,3 +251,14 @@ class ConfirmAddressView(APIView):
         else:
             user_adress=Address.objects.get(address=address.address,postal_code=address.postal_code)
         return Response({"message":"your address is confirmed","data":AddressSerializer(instance=user_adress).data},status=status.HTTP_200_OK)
+
+
+class ProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user=request.user
+        if user.confirmed_data:
+            return Response({"data":ConfirmationSerializer(instance=user).data,"confirmed_data":True},status=status.HTTP_200_OK)
+        else:
+            return Response({"data":None,"confirmed_data":False},status=status.HTTP_400_BAD_REQUEST)
