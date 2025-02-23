@@ -76,14 +76,14 @@ class SendOTP(APIView):
 
 class LoginView(APIView):
     def validate_phone_number(self,phone_number: str):
-        pattern = r"^0(9[1-9]{1}[0-9]{1})\d{7}$"  
+        pattern = r"^0(9[0-9]{1}[0-9]{1})\d{7}$"  
         return bool(re.match(pattern, phone_number))
     
     def post(self, request, *args, **kwargs):
         if request.data.get("phone_number") is None:
             return Response({"error":"send phone_number"},status=status.HTTP_400_BAD_REQUEST)
-        # if not self.validate_phone_number(request.data["phone_number"]):
-        #     return Response({"error":"phone number format is not valid"},status=status.HTTP_400_BAD_REQUEST)
+        if not self.validate_phone_number(request.data["phone_number"]):
+            return Response({"error":"phone number format is not valid"},status=status.HTTP_400_BAD_REQUEST)
         if request.data.get("otp_code") is None:
             return Response({"error":"send otp code"},status=status.HTTP_400_BAD_REQUEST)
         if not OTP.objects.filter(phone_number=request.data["phone_number"],otp_for="login").exists():
@@ -140,11 +140,85 @@ class HomeView(APIView):
     def get(self, request):
         ser_data=HomeSerializer(instance=request.user)
         return Response(ser_data.data,status=status.HTTP_200_OK)
+class SendSecondPhoneOTP(APIView):
+    def generate_otp(self):
+        return ''.join(random.choices(string.digits, k=8))
+    
+    def validate_phone_number(self,phone_number: str):
+        pattern = r"^0(9[0-9]{1}[0-9]{1})\d{7}$"
+        return bool(re.match(pattern, phone_number))
+    
+    def post(self, request):
+        if request.data.get("second_phone_number") is None:
+            return Response({"error":"send second_phone_number"},status=status.HTTP_400_BAD_REQUEST)
+        if not self.validate_phone_number(request.data["second_phone_number"]):
+            return Response({"error":"second phone number format is not valid"},status=status.HTTP_400_BAD_REQUEST)
+        
+        if request.data.get("phone_number") is None:
+            return Response({"error":"send phone_number"},status=status.HTTP_400_BAD_REQUEST)
+        if not self.validate_phone_number(request.data["phone_number"]):
+            return Response({"error":"phone number format is not valid"},status=status.HTTP_400_BAD_REQUEST)
+        
+        #!bug for_phone_number should add otp table 
+        code=self.generate_otp()
+        if OTP.objects.filter(phone_number=request.data["second_phone_number"],otp_for="second_phone").exists():
+            otp=OTP.objects.get(phone_number=request.data["second_phone_number"],otp_for="second_phone")
+            num_try=((timezone.now()-otp.otp_expire-datetime.timedelta(minutes=2))/datetime.timedelta(minutes=20))
+            if int(num_try)>0:
+                all_try=int(num_try)+otp.max_try
+            else:
+                all_try=otp.max_try
+            if all_try<=0:
+                return Response({"error":"request limit,try 20 minute later"},status=status.HTTP_400_BAD_REQUEST)
+            elif all_try>=3:
+                otp.otp_code=code
+                otp.max_try=2
+                otp.otp_expire=timezone.now()+datetime.timedelta(minutes=2)
+                otp.save()
+            else:
+                otp.otp_code=code
+                otp.max_try=all_try-1
+                otp.otp_expire=timezone.now()+datetime.timedelta(minutes=2)
+                otp.save()
+        else:
+            OTP.objects.create(phone_number=request.data["second_phone_number"],otp_for="second_phone",otp_code=code,otp_expire=timezone.now() + datetime.timedelta(minutes=2),max_try=2)
+            
+        ## SMS HANDLING 
+        print(code)
+        data = {'from': '50002710054854', 'to': request.data["second_phone_number"], 'text': f' شمارۀ {request.data["second_phone_number"] }، در پلتفرم ایوام به عنوان شمارۀ اضطراری، توسط صاحب شمارۀ بیسار { request.data["phone_number"]}، ثبت گردیده است. لطفا کد زیر در اختیار صاحب شماره اول قرار دهید.\n {code}'}
+        response = requests.post('https://console.melipayamak.com/api/send/simple/2d475adf0f3f4fa3bf59f1a99eed0712', json=data)
+        if response.json()["status"]=="ارسال موفق بود":
+            return Response({"message":"با موفقیت ارسال شد"},status=status.HTTP_200_OK)
+        else:
+            return Response({"message":"ارسال کد با خطایی مواجه شد.","code":code},status=status.HTTP_400_BAD_REQUEST)
+        
 
 class ConfirmInformationView(APIView):
     permission_classes = [IsAuthenticated]
+    def validate_phone_number(self,phone_number: str):
+        pattern = r"^0(9[0-9]{1}[0-9]{1})\d{7}$"
+        return bool(re.match(pattern, phone_number))
 
     def post(self, request):
+        if request.data.get("second_phone_number") is None:
+            return Response({"error":"send second_phone_number"},status=status.HTTP_400_BAD_REQUEST)
+
+        if not self.validate_phone_number(request.data["second_phone_number"]):
+            return Response({"error":"phone number format is not valid"},status=status.HTTP_400_BAD_REQUEST)
+        
+        if request.data.get("otp_code") is None:
+            return Response({"error":"send otp code"},status=status.HTTP_400_BAD_REQUEST)
+
+        if not OTP.objects.filter(phone_number=request.data["second_phone_number"],otp_for="second_phone").exists():
+            return Response({"error":"first make an otp code for yourself"},status=status.HTTP_400_BAD_REQUEST)
+        
+        otp=OTP.objects.get(phone_number=request.data["second_phone_number"],otp_for="second_phone")
+        if timezone.now()>otp.otp_expire:
+            return Response({"error":"time of otp is expired"},status=status.HTTP_400_BAD_REQUEST)
+        if not otp.otp_code==request.data["otp_code"]:
+            return Response({"error":"the code is wrong"},status=status.HTTP_400_BAD_REQUEST)
+        second_phone_number=request.data["second_phone_number"]
+        
         if request.user.confirmed_data:
             return Response({"error":"your information is already confirmed"},status=status.HTTP_400_BAD_REQUEST)
         
@@ -171,6 +245,14 @@ class ConfirmInformationView(APIView):
         national_code=request.data.get("national_code")
         base_birthday_date=request.data.get("birthday_date").replace("/","-")
         birthday_date=request.data.get("birthday_date").replace("/","")
+
+        
+        second_phone_path=f"https://napi.jibit.ir/ide/v1/services/matching?nationalCode={national_code}&mobileNumber={second_phone_number}"
+        response_of_check_second_phone=requests.get(second_phone_path,headers=header)
+        if 200<=response_of_check_second_phone.status_code<=299:
+            if response_of_check_second_phone.json()["matched"]:
+                return Response({"error":"your national_code and your second phone number is matched"},status=status.HTTP_400_BAD_REQUEST)
+
         path=f"https://napi.jibit.ir/ide/v1/services/matching?nationalCode={national_code}&mobileNumber={phone_number}"
         response_of_check_national_code_mobile=requests.get(path,headers=header)
         if 200<=response_of_check_national_code_mobile.status_code<=299:
@@ -185,6 +267,7 @@ class ConfirmInformationView(APIView):
                         user.national_code=national_code
                         user.birthday_date=base_birthday_date
                         user.confirmed_data=True
+                        user.second_phone_number=second_phone_number
                         user.save()
                         return Response({"message":"your validation is done","data":ConfirmationSerializer(instance=request.user).data},status=status.HTTP_200_OK)
                     else:

@@ -15,6 +15,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     last_name=models.CharField(max_length=50,null=True,blank=True)
     national_code=models.CharField( max_length=10,unique=True,null=True,blank=True)
     phone_number=models.CharField(max_length=11,unique=True,null=False,blank=False)
+    second_phone_number=models.CharField(max_length=11,null=True,blank=True)
     is_man=models.BooleanField(null=True,blank=True)
     birthday_date=models.DateField(null=True,blank=True)
     referrer_code = models.CharField(max_length=90, blank=True, null=True)

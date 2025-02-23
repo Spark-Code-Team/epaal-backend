@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     "Role",
     "Product",
     "Shop",
+    "Bank",
 
     # Modules:
     'rest_framework',

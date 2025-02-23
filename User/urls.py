@@ -6,6 +6,7 @@ from User.views import (
     SendOTP,
     LogoutView,
     ConfirmInformationView,
+    SendSecondPhoneOTP,
     ShowAddressView,
     ProfileView
 )
@@ -26,5 +27,6 @@ urlpatterns = [
     path('show_address/', ShowAddressView.as_view(), name='show_address'),
     path('confirm_address/', ConfirmAddressView.as_view(), name='confirm_address'),
     path('profile/', ProfileView.as_view(), name='profile'),
+    path('send_otp_second_phone_number/', SendSecondPhoneOTP.as_view(), name='send_otp_second_phone_number'),
 
 ]
