@@ -16,7 +16,7 @@ import re
 from .models import OTP,JibitToken,TempAddress,Address
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated
-
+import jdatetime
 class UserRegistration(APIView):
     serializer_class = UserRegisterSerializer
     def post(self, request):
@@ -194,6 +194,11 @@ class SendSecondPhoneOTP(APIView):
 
 class ConfirmInformationView(APIView):
     permission_classes = [IsAuthenticated]
+    def convert_shamsi_to_miladi(self,shamsi_date):
+        array_of_date=shamsi_date.split("/")
+        return jdatetime.date(int(array_of_date[0]),int(array_of_date[1]),int(array_of_date[2])).togregorian()
+
+    
     def validate_phone_number(self,phone_number: str):
         pattern = r"^0(9[0-9]{1}[0-9]{1})\d{7}$"
         return bool(re.match(pattern, phone_number))
@@ -267,6 +272,7 @@ class ConfirmInformationView(APIView):
                         user.birthday_date=base_birthday_date
                         user.confirmed_data=True
                         user.second_phone_number=second_phone_number
+                        user.shamsi_birthday_date=self.convert_shamsi_to_miladi(request.data.get("birthday_date"))
                         user.save()
                         return Response({"message":"your validation is done","data":ConfirmationSerializer(instance=request.user).data},status=status.HTTP_200_OK)
                     else:

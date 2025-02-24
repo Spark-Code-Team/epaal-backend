@@ -136,7 +136,7 @@ class HomeSerializer(serializers.ModelSerializer):
 class ConfirmationSerializer(serializers.ModelSerializer):
     class Meta:
             model = CustomUser
-            fields = ('id','first_name','last_name','phone_number',"national_code",'birthday_date','second_phone_number',"confirmed_data","confirmed_address")
+            fields = ('id','first_name','last_name','phone_number',"national_code",'birthday_date','shamsi_birthday_date','second_phone_number',"confirmed_data","confirmed_address")
 
 class TempAdressSerializer(serializers.ModelSerializer):
     class Meta:

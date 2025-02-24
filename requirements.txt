@@ -9,3 +9,4 @@ drf-spectacular==0.26.3
 drf-yasg==1.21.7
 persian-tools==0.0.11
 django-rest-passwordreset==1.4.1
+django_jalali==7.3.0
