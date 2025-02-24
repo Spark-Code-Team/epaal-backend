@@ -26,19 +26,23 @@ class CreateFacilityView(APIView):
         print(requset.data)
         if requset.data.get("sheba_number") is None or requset.data["sheba_number"]=="":
             return Response({"message":" sheba_number is required"},status=status.HTTP_400_BAD_REQUEST)
+        
         if requset.data.get("facility_id") is None or requset.data["facility_id"]=="":
             return Response({"message":" facility_id is required"},status=status.HTTP_400_BAD_REQUEST)
+        
         if not Facility.objects.filter(id=requset.data["facility_id"]).exists():
             return Response({"message":" facility_id is not valid"},status=status.HTTP_400_BAD_REQUEST)
+        
         facility=Facility.objects.get(id=requset.data["facility_id"])
 
         if sheba.validate(requset.data["sheba_number"])==False:
             return Response({"message":" sheba_number is not valid"},status=status.HTTP_400_BAD_REQUEST)
+        
         if sheba.bank_data(requset.data["sheba_number"])["nickname"]!=facility.bank.name:
             return Response({"message":" sheba_number is not valid"},status=status.HTTP_400_BAD_REQUEST)
         
         if JibitToken.objects.filter(created_at__gte=timezone.now()-datetime.timedelta(days=1)).exists():
-            jibit_token=JibitToken.objects.get(created_at__gte=timezone.now()-datetime.timedelta(days=24))
+            jibit_token=JibitToken.objects.get(created_at__gte=timezone.now()-datetime.timedelta(days=1))
             access_token=jibit_token.access_token
         else:
             response = requests.post('https://napi.jibit.ir/ide/v1/tokens/generate', json={"apiKey":"cvYDi4nzvP","secretKey":"5Ioyhh9MDbjA19_JQi16CJWI9"})
@@ -51,6 +55,5 @@ class CreateFacilityView(APIView):
         if response.status_code<200 or response.status_code>=300:
             return Response({"message":" sheba_number is not valid"},status=status.HTTP_400_BAD_REQUEST)
         
-        print(sheba.validate(requset.data["sheba_number"]))
-        print(sheba.bank_data(requset.data["sheba_number"]))
+
         return Response({"data":"of"},status=status.HTTP_200_OK) 

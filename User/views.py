@@ -184,7 +184,7 @@ class SendSecondPhoneOTP(APIView):
             
         ## SMS HANDLING 
         print(code)
-        data = {'from': '50002710054854', 'to': request.data["second_phone_number"], 'text': f' شمارۀ {request.data["second_phone_number"] }، در پلتفرم ایوام به عنوان شمارۀ اضطراری، توسط صاحب شمارۀ بیسار { request.user.phone_number}، ثبت گردیده است. لطفا کد زیر در اختیار صاحب شماره اول قرار دهید.\n {code}'}
+        data = {'from': '50002710054854', 'to': request.data["second_phone_number"], 'text': f' شمارۀ {request.data["second_phone_number"] }، در پلتفرم ایوام به عنوان شمارۀ اضطراری، توسط صاحب شمارۀ  { request.user.phone_number}، ثبت گردیده است. لطفا کد زیر در اختیار صاحب شماره اول قرار دهید.\n {code}'}
         response = requests.post('https://console.melipayamak.com/api/send/simple/2d475adf0f3f4fa3bf59f1a99eed0712', json=data)
         if response.json()["status"]=="ارسال موفق بود":
             return Response({"message":"با موفقیت ارسال شد"},status=status.HTTP_200_OK)
@@ -222,7 +222,7 @@ class ConfirmInformationView(APIView):
             return Response({"error":"your information is already confirmed"},status=status.HTTP_400_BAD_REQUEST)
         
         if JibitToken.objects.filter(created_at__gte=timezone.now()-datetime.timedelta(days=1)).exists():
-            jibit_token=JibitToken.objects.get(created_at__gte=timezone.now()-datetime.timedelta(days=24))
+            jibit_token=JibitToken.objects.get(created_at__gte=timezone.now()-datetime.timedelta(days=1))
             access_token=jibit_token.access_token
         else:
             response = requests.post('https://napi.jibit.ir/ide/v1/tokens/generate', json={"apiKey":"cvYDi4nzvP","secretKey":"5Ioyhh9MDbjA19_JQi16CJWI9"})
@@ -290,7 +290,7 @@ class ShowAddressView(APIView):
         
         postal_code=request.data.get("postal_code")
         if JibitToken.objects.filter(created_at__gte=timezone.now()-datetime.timedelta(days=1)).exists():
-            jibit_token=JibitToken.objects.get(created_at__gte=timezone.now()-datetime.timedelta(days=24))
+            jibit_token=JibitToken.objects.get(created_at__gte=timezone.now()-datetime.timedelta(days=1))
             access_token=jibit_token.access_token
         else:
             response = requests.post('https://napi.jibit.ir/ide/v1/tokens/generate', json={"apiKey":"cvYDi4nzvP","secretKey":"5Ioyhh9MDbjA19_JQi16CJWI9"})
