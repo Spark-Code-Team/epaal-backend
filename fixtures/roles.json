@@ -26,7 +26,7 @@
         "model":"Bank.Bank",
         "pk":1,
         "fields":{
-            "name":"کارآفرین"
+            "name":"بانک کارآفرین"
         }
     },
     {
@@ -256,7 +256,7 @@
     },
     {
         "model":"Bank.FacilityInstallmentNumber",
-        "pk":1,
+        "pk":2,
         "fields":{
             "facility":1,
             "number_of_installment":12        
@@ -264,7 +264,7 @@
     },
     {
         "model":"Bank.FacilityInstallmentNumber",
-        "pk":1,
+        "pk":3,
         "fields":{
             "facility":1,
             "number_of_installment":18     
@@ -272,7 +272,7 @@
     },
     {
         "model":"Bank.FacilityInstallmentNumber",
-        "pk":1,
+        "pk":4,
         "fields":{
             "facility":1,
             "number_of_installment":24        

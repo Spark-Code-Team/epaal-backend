@@ -73,6 +73,7 @@ class UserFacility(models.Model):
     choosen_value=models.CharField(max_length=100)
     sub_grade=models.ForeignKey(SubGrade,on_delete=models.CASCADE,related_name="sub_grade_id_user_facility")
     choosen_facility_installment_number=models.ForeignKey(FacilityInstallmentNumber,on_delete=models.CASCADE,related_name="facility_installment_number_id_user_facility")
+    sheba_number=models.CharField(max_length=26,null=True,blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     class Meta:

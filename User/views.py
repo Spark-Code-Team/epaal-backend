@@ -71,7 +71,7 @@ class SendOTP(APIView):
         if response.json()["status"]=="ارسال موفق بود":
             return Response({"message":"با موفقیت ارسال شد"},status=status.HTTP_200_OK)
         else:
-            return Response({"message":"ارسال کد با خطایی مواجه شد.","code":code},status=status.HTTP_400_BAD_REQUEST)
+            return Response({"message":"ارسال کد با خطایی مواجه شد."},status=status.HTTP_400_BAD_REQUEST)
 
 
 class LoginView(APIView):
@@ -141,6 +141,9 @@ class HomeView(APIView):
         ser_data=HomeSerializer(instance=request.user)
         return Response(ser_data.data,status=status.HTTP_200_OK)
 class SendSecondPhoneOTP(APIView):
+    permission_classes = [IsAuthenticated]
+
+
     def generate_otp(self):
         return ''.join(random.choices(string.digits, k=8))
     
@@ -154,11 +157,7 @@ class SendSecondPhoneOTP(APIView):
         if not self.validate_phone_number(request.data["second_phone_number"]):
             return Response({"error":"second phone number format is not valid"},status=status.HTTP_400_BAD_REQUEST)
         
-        if request.data.get("phone_number") is None:
-            return Response({"error":"send phone_number"},status=status.HTTP_400_BAD_REQUEST)
-        if not self.validate_phone_number(request.data["phone_number"]):
-            return Response({"error":"phone number format is not valid"},status=status.HTTP_400_BAD_REQUEST)
-        
+
         #!bug for_phone_number should add otp table 
         code=self.generate_otp()
         if OTP.objects.filter(phone_number=request.data["second_phone_number"],otp_for="second_phone").exists():
@@ -185,7 +184,7 @@ class SendSecondPhoneOTP(APIView):
             
         ## SMS HANDLING 
         print(code)
-        data = {'from': '50002710054854', 'to': request.data["second_phone_number"], 'text': f' شمارۀ {request.data["second_phone_number"] }، در پلتفرم ایوام به عنوان شمارۀ اضطراری، توسط صاحب شمارۀ بیسار { request.data["phone_number"]}، ثبت گردیده است. لطفا کد زیر در اختیار صاحب شماره اول قرار دهید.\n {code}'}
+        data = {'from': '50002710054854', 'to': request.data["second_phone_number"], 'text': f' شمارۀ {request.data["second_phone_number"] }، در پلتفرم ایوام به عنوان شمارۀ اضطراری، توسط صاحب شمارۀ بیسار { request.user.phone_number}، ثبت گردیده است. لطفا کد زیر در اختیار صاحب شماره اول قرار دهید.\n {code}'}
         response = requests.post('https://console.melipayamak.com/api/send/simple/2d475adf0f3f4fa3bf59f1a99eed0712', json=data)
         if response.json()["status"]=="ارسال موفق بود":
             return Response({"message":"با موفقیت ارسال شد"},status=status.HTTP_200_OK)
