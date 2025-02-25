@@ -1,7 +1,7 @@
 
 import requests
 from User.models import CustomUser
-from User.serializers import AddressSerializer, ConfirmationSerializer, HomeSerializer, TempAdressSerializer, UserRegisterSerializer
+from User.serializers import AddressProfileSerializer, AddressSerializer, ConfirmationSerializer, HomeSerializer, TempAdressSerializer, UserRegisterSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -204,6 +204,9 @@ class ConfirmInformationView(APIView):
         return bool(re.match(pattern, phone_number))
 
     def post(self, request):
+        if request.user.confirmed_data:
+            return Response({"error":"your information is already confirmed"},status=status.HTTP_400_BAD_REQUEST)
+        
         if request.data.get("second_phone_number") is None:
             return Response({"error":"send second_phone_number"},status=status.HTTP_400_BAD_REQUEST)
 
@@ -223,8 +226,6 @@ class ConfirmInformationView(APIView):
             return Response({"error":"the code is wrong"},status=status.HTTP_400_BAD_REQUEST)
         second_phone_number=request.data["second_phone_number"]
         
-        if request.user.confirmed_data:
-            return Response({"error":"your information is already confirmed"},status=status.HTTP_400_BAD_REQUEST)
         
         if JibitToken.objects.filter(created_at__gte=timezone.now()-datetime.timedelta(days=1)).exists():
             jibit_token=JibitToken.objects.get(created_at__gte=timezone.now()-datetime.timedelta(days=1))
@@ -316,13 +317,13 @@ class ConfirmAddressView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        if  user.confirmed_address is True:
-            return Response({"message":"your have done it before"},status=status.HTTP_400_BAD_REQUEST)
+        
         if request.data.get("postal_code") is None:
             return Response({"error":"send postal_code"},status=status.HTTP_400_BAD_REQUEST)
         
         if len(request.data.get("postal_code"))!=10:
             return Response({"error":"postal_code must be 10 characters"},status=status.HTTP_400_BAD_REQUEST)
+        
         
         if request.data.get("id") is None:
             return Response({"error":"send id"},status=status.HTTP_400_BAD_REQUEST)
@@ -332,6 +333,9 @@ class ConfirmAddressView(APIView):
         
         if not TempAddress.objects.filter(id=request.data["id"],postal_code=request.data["postal_code"],address=request.data["address"]).exists():
             return Response({"error":"the address is not valid"},status=status.HTTP_400_BAD_REQUEST)
+        
+        if Address.objects.filter(user=request.user,postal_code=request.data["postal_code"]).exists():
+            return Response({"error":"your address is already confirmed"},status=status.HTTP_400_BAD_REQUEST)
         address=TempAddress.objects.get(id=request.data["id"],postal_code=request.data["postal_code"],address=request.data["address"])
         user=request.user
         user.confirmed_address=True
@@ -348,7 +352,19 @@ class ProfileView(APIView):
 
     def get(self, request):
         user=request.user
-        if user.confirmed_data:
-            return Response({"data":ConfirmationSerializer(instance=user).data,"confirmed_data":True},status=status.HTTP_200_OK)
+        confirmed_data=user.confirmed_data
+        confirmed_address=user.confirmed_address
+        if confirmed_data:
+            data=ConfirmationSerializer(instance=user).data
         else:
-            return Response({"data":None,"confirmed_data":False},status=status.HTTP_400_BAD_REQUEST)
+            data=None
+        
+        if confirmed_address:
+            if not Address.objects.filter(user=user).exists():
+                confirmed_address=False
+                address=None
+            else:    
+                address=AddressProfileSerializer(instance=Address.objects.filter(user=user).order_by("-created_at").first()).data
+        else:
+            address=None
+        return Response({"data":data,"confirmed_data":confirmed_data,"confirmed_address":confirmed_address,"address_data":address},status=status.HTTP_200_OK)

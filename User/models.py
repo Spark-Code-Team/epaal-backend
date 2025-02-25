@@ -52,6 +52,7 @@ class Address(models.Model):
     address=models.CharField(max_length=1000)
     postal_code=models.CharField(max_length=10)
     user=models.ForeignKey(CustomUser,on_delete=models.CASCADE,related_name="user_address")
+    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         verbose_name = 'address'

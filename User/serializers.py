@@ -147,3 +147,7 @@ class AddressSerializer(serializers.ModelSerializer):
     class Meta:
         model = Address
         fields = ("__all__")
+class AddressProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Address
+        fields = ("postal_code","address")
