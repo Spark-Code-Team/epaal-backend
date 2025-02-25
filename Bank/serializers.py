@@ -39,7 +39,7 @@ class FacilityUseerSerialiser(serializers.ModelSerializer):
     user_name=serializers.SerializerMethodField()
     class Meta:
         model = UserFacility
-        fields = ("user_name","status","level","level_number","given_value","created_at","facility")
+        fields = ("id","user_name","status","level","level_number","given_value","created_at","facility")
 
     def get_user_name(self,obj):
         return f'{obj.user.first_name} {obj.user.last_name}'

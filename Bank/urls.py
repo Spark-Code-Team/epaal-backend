@@ -1,5 +1,5 @@
 from django.urls import path, include, re_path
-from .views import GetAllFacilityView,CreateFacilityView,ConfirmGradeView,SubmitDigitalView,SubmitPhysicalView,DigitalSignitureView,SendCodeGetawayView,PrePaymentView
+from .views import GetAllFacilityView,CreateFacilityView,ConfirmGradeView,SubmitDigitalView,SubmitPhysicalView,DigitalSignitureView,SendCodeGetawayView,PrePaymentView,InquiryUserFacilityView
 app_name = 'Bank'
 urlpatterns = [
 
@@ -11,6 +11,7 @@ urlpatterns = [
     path("digital_signiture", DigitalSignitureView.as_view(), name="digital_signiture"),#level 6
     path("send_code_getaway_prepayment", SendCodeGetawayView.as_view(), name="send_code_getaway_prepayment"),#level 7
     path("prepayment", PrePaymentView.as_view(), name="prepayment"),#level 7
+    path("inquiry_user_facility", InquiryUserFacilityView.as_view(), name="inquiry_user_facility"),
 
     
 ]

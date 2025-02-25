@@ -4,7 +4,7 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from User.models import JibitToken
 from .models import Facility
-from .serializers import FacilityDocumentSerializer, FacilitySerializer, UserDocumentSerializer
+from .serializers import FacilityDocumentSerializer, FacilitySerializer, FacilityUseerSerialiser, UserDocumentSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
@@ -120,7 +120,7 @@ class ConfirmGradeView(APIView):
         user_facility.level="submit_digital"
         user_facility.level_number=4
         user_facility.save()
-        return Response({"message":"level 4 is done"},status=status.HTTP_200_OK)
+        return Response({"message":"level 3 is done"},status=status.HTTP_200_OK)
     
 
 class SubmitDigitalView(APIView):
@@ -232,3 +232,13 @@ class PrePaymentView(APIView):
         user_facility.level_number=8
         user_facility.save()
         return Response({"message":"level 7 is done"},status=status.HTTP_200_OK)
+    
+class InquiryUserFacilityView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self,request):
+        if UserFacility.objects.filter(user=request.user,status="in_progress").exists()==False:
+            return Response({"data":None},status=status.HTTP_200_OK)
+        user_facilities=UserFacility.objects.get(user=request.user,status="in_progress")
+        ser_data=FacilityUseerSerialiser(instance=user_facilities)
+        return Response({"data":ser_data.data},status=status.HTTP_200_OK)
