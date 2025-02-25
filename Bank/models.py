@@ -15,6 +15,8 @@ class Bank(models.Model):
     VALID_AVATAR_EXTENSION = ['png', 'jpg', 'jpeg']   
 
     name=models.CharField(max_length=100,null=False,blank=False)
+    nickname=models.CharField(max_length=100,null=True,blank=True)
+    jiibit_bank_naem=models.CharField(max_length=100,null=False,blank=False)
     picture= models.ImageField(upload_to=bank_picture_directory_path,
                                validators=[FileExtensionValidator(VALID_AVATAR_EXTENSION), validate_image_size],
                                blank=True, null=True, max_length=1000)
@@ -71,7 +73,7 @@ class UserFacility(models.Model):
     level=models.CharField(max_length=100)
     level_number=models.IntegerField()
     choosen_value=models.CharField(max_length=100)
-    sub_grade=models.ForeignKey(SubGrade,on_delete=models.CASCADE,related_name="sub_grade_id_user_facility")
+    sub_grade=models.ForeignKey(SubGrade,on_delete=models.CASCADE,related_name="sub_grade_id_user_facility",null=True,blank=True)
     choosen_facility_installment_number=models.ForeignKey(FacilityInstallmentNumber,on_delete=models.CASCADE,related_name="facility_installment_number_id_user_facility")
     sheba_number=models.CharField(max_length=26,null=True,blank=True)
     created_at = models.DateTimeField(auto_now_add=True)

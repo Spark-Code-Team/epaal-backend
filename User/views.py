@@ -269,10 +269,10 @@ class ConfirmInformationView(APIView):
                         user.first_name=first_name
                         user.last_name=last_name
                         user.national_code=national_code
-                        user.birthday_date=base_birthday_date
+                        user.birthday_date=self.convert_shamsi_to_miladi(request.data.get("birthday_date"))
                         user.confirmed_data=True
                         user.second_phone_number=second_phone_number
-                        user.shamsi_birthday_date=self.convert_shamsi_to_miladi(request.data.get("birthday_date"))
+                        user.shamsi_birthday_date=base_birthday_date
                         user.save()
                         return Response({"message":"your validation is done","data":ConfirmationSerializer(instance=request.user).data},status=status.HTTP_200_OK)
                     else:
@@ -316,6 +316,8 @@ class ConfirmAddressView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
+        if  user.confirmed_address is True:
+            return Response({"message":"your have done it before"},status=status.HTTP_400_BAD_REQUEST)
         if request.data.get("postal_code") is None:
             return Response({"error":"send postal_code"},status=status.HTTP_400_BAD_REQUEST)
         
