@@ -85,3 +85,23 @@ class JibitToken(models.Model):
 class TempAddress(models.Model):
     postal_code=models.CharField(max_length=10)
     address=models.CharField(max_length=1000)
+
+class CreditWallet(models.Model):
+    user=models.ForeignKey(CustomUser,on_delete=models.CASCADE,related_name="user_credit_wallet")
+    balance=models.FloatField(default=0.0)
+
+    class Meta:
+        verbose_name = 'credit_wallet'
+        verbose_name_plural = 'credit_wallets'
+        db_table = 'credit_wallet'
+
+class UserCreditTransaction(models.Model):
+    credit_wallet=models.ForeignKey(CreditWallet,on_delete=models.CASCADE,related_name="credit_wallet_id_user_credit_transaction")
+    value=models.FloatField()
+    type=models.CharField(max_length=100)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'user_credit_transaction'
+        verbose_name_plural = 'user_credit_transactions'
+        db_table = 'user_credit_transaction'
