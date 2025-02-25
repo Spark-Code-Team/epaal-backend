@@ -4,11 +4,14 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
 from django.db import IntegrityError, transaction
+
+from Bank.serializers import FacilityUseerSerialiser
 from .models import Shop,Provider,ProviderBranch
 from Product.models import MidlevelTopic,MidlevelTopicProviderBranch
 from User.serializers import UserRegisterSerializer
 from .serializers import ProviderBranchSerializer, ProviderBranchWithProviderSerializer, ShopSerializer,AllShopSerializer,SingleShopSerializer,MidlevelTopicProviderBranchSerializer
 from django.db.models.signals import pre_save
+from Bank.models import UserFacility
 # Create your views here.
 class ShopView(APIView):
     permission_classes = (IsAuthenticated,)
@@ -167,3 +170,19 @@ class ConnectMidlevelToProviderBranchView(APIView):
 
         else:
             return Response({"error":"midlevel_topic not found"},status=status.HTTP_404_NOT_FOUND)
+        
+
+class GetAllWaitingFacilityView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self,request):
+        if request.user.role.name != "admin":
+            return Response({"error":"you are not admin"},status=status.HTTP_400_BAD_REQUEST)
+        
+        if UserFacility.objects.filter(level__in=["waiting_digital","waiting_physical","final_waiting"]).exists() == False:
+            return Response({"data":{}},status=status.HTTP_200_OK)
+        user_facilities=UserFacility.objects.filter(level__in=["waiting_digital","waiting_physical","final_waiting"])
+        ser_data=FacilityUseerSerialiser(instance=user_facilities,many=True)
+        return Response({"data":ser_data.data},status=status.HTTP_200_OK)
+
+        

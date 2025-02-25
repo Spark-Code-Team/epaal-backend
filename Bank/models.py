@@ -85,3 +85,16 @@ class UserFacility(models.Model):
         db_table = 'user_facility'
 
 
+class UserDocumetn(models.Model):
+    user_facility=models.ForeignKey(UserFacility,on_delete=models.CASCADE,related_name="user_facility_id_user_document")
+    document=models.ForeignKey(FacilityDocument,on_delete=models.CASCADE,related_name="facility_document_id_user_document")
+    value=models.CharField(max_length=100,null=True,blank=True)
+    file=models.FileField(upload_to='Media/user_document/',blank=True, null=True, max_length=1000)
+    status=models.CharField(max_length=100)
+    problem_text=models.CharField(max_length=1000,null=True,blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    class Meta:
+        verbose_name = 'user_document'
+        verbose_name_plural = 'user_documents'
+        db_table = 'user_document'
