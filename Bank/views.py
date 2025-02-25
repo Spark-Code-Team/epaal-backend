@@ -1,3 +1,4 @@
+import random
 from django.shortcuts import render
 from rest_framework.views import APIView
 from User.models import JibitToken
@@ -10,7 +11,7 @@ from persian_tools.bank import sheba
 import datetime
 from django.utils import timezone
 import requests
-from .models import UserFacility,FacilityInstallmentNumber
+from .models import UserFacility,FacilityInstallmentNumber,SubGrade
 # Create your views here.
 
 class GetAllFacilityView(APIView):
@@ -98,3 +99,23 @@ class CreateFacilityView(APIView):
                                     )
         
         return Response({"data":"facility created successfuly"},status=status.HTTP_200_OK) 
+    
+class ConfirmGradeView(APIView):
+    permission_classes = [IsAuthenticated]
+    def post(self,request):
+        if UserFacility.objects.filter(user=request.user,level="grade",level_number=3,status="in_progress").exists()==False:
+            return Response({"message":"You do not have any facility in progress"},status=status.HTTP_400_BAD_REQUEST)
+        user_facility=UserFacility.objects.get(user=request.user,level="grade",level_number=3,status="in_progress") 
+        sub_grade_array=["A3","A2","A1","B3","B2","B1"]
+        sub_grade_name=random.choice(sub_grade_array)
+        sub_grade=SubGrade.objects.get(name=sub_grade_name)
+        grade_name=sub_grade.grade.name 
+        if grade_name not in ["A","B"]:
+            return Response({"message":"your grade is ot enough"},status=status.HTTP_400_BAD_REQUEST)
+        
+        user_facility.given_value=user_facility.choosen_value
+        user_facility.sub_grade_id=sub_grade
+        user_facility.level="submit_digital"
+        user_facility.level_number=4
+        user_facility.save()
+        return Response({"message":"level 4 is done"},status=status.HTTP_200_OK)
