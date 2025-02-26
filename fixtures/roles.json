@@ -501,6 +501,16 @@
         }
     },
     {
+        "model":"Product.StaticField",
+        "pk":5,
+        "fields": {
+            "name":"x",
+            "object_id": 1,
+            "topic_level": 1
+
+        }
+    },
+    {
         "model":"Product.ProductStaticField",
         "pk":1,
         "fields": {

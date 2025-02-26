@@ -162,13 +162,12 @@ class SubmitDigitalView(APIView):
         print(grouped_data)
 
         ser_data=UserDocumentSerializer(data=grouped_data, many=True)
-        print(ser_data)
         if ser_data.is_valid(raise_exception=True):
             ser_data.save()
-        user_facility.level="wating_digital"
+        user_facility.level="waiting_digital"
         user_facility.level_number=4
         user_facility.save()
-        return Response({"message":"level 5 is done"},status=status.HTTP_200_OK)
+        return Response({"message":"level 4 is done"},status=status.HTTP_200_OK)
     
 class SubmitPhysicalView(APIView):
     permission_classes = [IsAuthenticated]
