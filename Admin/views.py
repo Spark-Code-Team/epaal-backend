@@ -249,7 +249,7 @@ class ConfirmFinalWaitingView(APIView):
         evaam_value=int(user_facility.given_value)*converted_percent*new_percent
         charge_price=int(user_facility.given_value)-evaam_value
         charge_price_str=str(charge_price)
-        user_facility.status="done"
+        user_facility.status="installment"
         user_facility.save()
         if CreditWallet.objects.filter(user=request.user).exists():
             user_wallet=CreditWallet.objects.get(user=request.user)

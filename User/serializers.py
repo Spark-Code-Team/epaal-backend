@@ -153,8 +153,8 @@ class AddressProfileSerializer(serializers.ModelSerializer):
         fields = ("postal_code","address")
 
 
-class UserWalletSerialiser(serializers.Serializer):
+class UserWalletSerialiser(serializers.ModelSerializer):
 
     class Meta:
-        model=UserCreditTransaction
-        fields=("__all__")
+        model=UserCreditTransaction 
+        fields = ("__all__")
