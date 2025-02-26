@@ -204,7 +204,7 @@ class ProductInstance(models.Model):
 class ProductStaticField(models.Model):
     product=models.ForeignKey(Product,on_delete=models.CASCADE,related_name="product_static_field")
     field=models.ForeignKey(StaticField,on_delete=models.CASCADE,related_name="product_static_field")
-    field_value=models.ForeignKey(FiledValue,on_delete=models.CASCADE,related_name="product_static_field")
+    field_value=models.ForeignKey(FiledValue,on_delete=models.CASCADE,related_name="product_static_field",null=True,blank=True)
     value=models.CharField(max_length=250)
     class Meta:
         verbose_name = 'product_static_field'
@@ -214,7 +214,7 @@ class ProductStaticField(models.Model):
 class ProductDynamicField(models.Model):
     product_instance=models.ForeignKey(ProductInstance,on_delete=models.CASCADE,related_name="product_dynamic_field")
     field=models.ForeignKey(StaticField,on_delete=models.CASCADE,related_name="product_dynamic_field")
-    field_value=models.ForeignKey(FiledValue,on_delete=models.CASCADE,related_name="product_dynamic_field")
+    field_value=models.ForeignKey(FiledValue,on_delete=models.CASCADE,related_name="product_dynamic_field",null=True,blank=True)
     value=models.CharField(max_length=250)
     class Meta:
         verbose_name = 'product_dynamic_field'

@@ -1,6 +1,6 @@
 from django.urls import path, include, re_path
 
-from .views import ALLCategoryView, GetAllLowlevelTopicView, GetAllMidlevelTopicView, GetMidlevelTopic,ShopLandingView,CreateMidlevelTopicView,CreateProductTopicView,CreateToplevelTopicView,GetAllToplevelTopicView,GetAllProductTopicView,CreateLowLevelTopicView,CreateFieldTopicView,GetMidlevelTopic, SingleLowlevelTopic, SingleMidlevelTopic, SingleProductTopic, SingleToplevelTopic,DeleteLowlevelTopicView,DeleteMidlevelTopicView,DeleteProductTopicView,DeleteToplevelTopicView
+from .views import ALLCategoryView, GetAllLowlevelTopicView, GetAllMidlevelTopicView, GetMidlevelTopic,ShopLandingView,CreateMidlevelTopicView,CreateProductTopicView,CreateToplevelTopicView,GetAllToplevelTopicView,GetAllProductTopicView,CreateLowLevelTopicView,CreateFieldTopicView,GetMidlevelTopic, SingleLowlevelTopic, SingleMidlevelTopic, SingleProductTopic, SingleToplevelTopic,DeleteLowlevelTopicView,DeleteMidlevelTopicView,DeleteProductTopicView,DeleteToplevelTopicView,AllProductView
 app_name = 'Product'
 urlpatterns = [
 
@@ -24,5 +24,8 @@ urlpatterns = [
     path("single_midlevel_topic", SingleMidlevelTopic.as_view(), name="single_midlevel_topic"),##api_coed:get 113
     path("single_lowlevel_topic", SingleLowlevelTopic.as_view(), name="single_lowlevel_topic"),##api_coed:get 114
     path("single_product_topic", SingleProductTopic.as_view(), name="single_product_topic"),##api_coed:get 115
+    path("get_all_product", AllProductView.as_view(), name="get_all_product"),
+
+
 
 ]

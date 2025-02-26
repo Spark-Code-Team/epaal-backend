@@ -279,5 +279,288 @@
             "facility":1,
             "number_of_installment":24        
         }
+    },
+    {
+        "model":"Product.ToplevelTopic",
+        "pk":1,
+        "fields":{
+            "name":"A"
+        }
+    },
+    {
+        "model":"Product.MidlevelTopic",
+        "pk":1,
+        "fields":{
+            "name":"A",
+            "toplevel_topic":1
+        }
+    },
+    {
+        "model":"Product.LowlevelTopic",
+        "pk":1,
+        "fields":{
+            "name":"کالای دیجیتال",
+            "midlevel_topic":1
+        }
+    },
+    {
+        "model":"Product.LowlevelTopic",
+        "pk":2,
+        "fields":{
+            "name":"خانه و آشپزخانه",
+            "midlevel_topic":1
+        }
+    },
+    {
+        "model":"Product.LowlevelTopic",
+        "pk":3,
+        "fields":{
+            "name":"آرایشی و بهداشتی",
+            "midlevel_topic":1
+        }
+    },
+    {
+        "model":"Product.LowlevelTopic",
+        "pk":4,
+        "fields":{
+            "name":"خودرو و موتورسیکلت",
+            "midlevel_topic":1
+        }
+    },
+    {
+        "model":"Product.LowlevelTopic",
+        "pk":5,
+        "fields":{
+            "name":"ابزار و تجهیزات",
+            "midlevel_topic":1
+        }
+    },
+    {
+        "model":"Product.LowlevelTopic",
+        "pk":6,
+        "fields":{
+            "name":"مبلمان و میز",
+            "midlevel_topic":1
+        }
+    },
+    {
+        "model":"Product.LowlevelTopic",
+        "pk":7,
+        "fields":{
+            "name":"سفر و گردشگری",
+            "midlevel_topic":1
+        }
+    },
+    {
+        "model":"Product.ProductTopic",
+        "pk":1,
+        "fields":{
+            "name":"موبایل سامسونگ",
+            "lowlevel_topic":1
+        }
+    },
+    {
+        "model":"Product.ProductTopic",
+        "pk":2,
+        "fields":{
+            "name":"یخچال",
+            "lowlevel_topic":2
+        }
+    },
+    {
+        "model":"Product.ProductTopic",
+        "pk":3,
+        "fields":{
+            "name":"شوینده صورت",
+            "lowlevel_topic":3
+        }
+    },
+    {
+        "model":"Product.ProductTopic",
+        "pk":4,
+        "fields":{
+            "name":"موتور سیکلت",
+            "lowlevel_topic":4
+        }
+    },
+    {
+        "model":"Product.ProductTopic",
+        "pk":5,
+        "fields":{
+            "name":"جعبه ابزار",
+            "lowlevel_topic":5
+        }
+    },
+    {
+        "model":"Product.ProductTopic",
+        "pk":6,
+        "fields":{
+            "name":"مبلمان گیمینگ",
+            "lowlevel_topic":6
+        }
+    },
+    {
+        "model":"Product.ProductTopic",
+        "pk":7,
+        "fields":{
+            "name":"ابزار کمپینگ",
+            "lowlevel_topic":7
+        }
+    },
+    {
+        "model":"Product.ProductTopic",
+        "pk":7,
+        "fields":{
+            "name":"ابزار کمپینگ",
+            "lowlevel_topic":7
+        }
+    },
+    {
+        "model":"User.CustomUser",
+        "pk":100,
+        "fields":{
+            "phone_number":"0935662154",
+            "created_at":"2025-01-06 14:13:41.456459",
+            "updated_at":"2025-01-06 14:13:41.456459"
+        }
     }
+    ,
+    {
+        "model":"Admin.Shop",
+        "pk":1,
+        "fields":{
+            "shop_name":"a",
+            "shop_phone":"02122558844",
+            "address":"a",
+            "bio":"a",
+            "shop_admin":100,
+            "created_at":"2025-01-06 14:13:41.456459"
+
+        }
+    }
+    ,{
+        "model":"Product.Product",
+        "pk":1,
+        "fields": {
+            "name": "گوشی موبایل سامسونگ مدل Galaxy S24 Ultra دو سیم کارت ظرفیت 256 گیگابایت و رم 12 گیگابایت - ویتنام",
+            "product_topic": 1,
+            "shop":1,
+            "creator_id":100,
+            "created_at":"2025-01-06 14:13:41.456459",
+            "updated_at":"2025-01-06 14:13:41.456459"
+        }
+    },
+    {
+        "model":"Product.ProductInstance",
+        "pk":1,
+        "fields": {
+            "product": 1,
+            "price": 1000000,
+            "discount":1,
+            "capacity":5
+        }
+    },
+    {
+        "model":"Product.StaticField",
+        "pk":1,
+        "fields": {
+            "name":"x",
+            "object_id": 1,
+            "topic_level": 1
+
+        }
+    },
+    {
+        "model":"Product.StaticField",
+        "pk":2,
+        "fields": {
+            "name":"x",
+            "object_id": 1,
+            "topic_level": 1
+
+        }
+    },
+    {
+        "model":"Product.StaticField",
+        "pk":3,
+        "fields": {
+            "name":"x",
+            "object_id": 1,
+            "topic_level": 1
+
+        }
+    },
+    {
+        "model":"Product.StaticField",
+        "pk":4,
+        "fields": {
+            "name":"x",
+            "object_id": 1,
+            "topic_level": 1
+
+        }
+    },
+    {
+        "model":"Product.ProductStaticField",
+        "pk":1,
+        "fields": {
+            "product":1,
+            "field": 1,
+            "value": "y"
+
+        }
+    },
+    {
+        "model":"Product.ProductStaticField",
+        "pk":2,
+        "fields": {
+            "product":1,
+            "field": 2,
+            "value": "y"
+
+        }
+    },
+    {
+        "model":"Product.ProductStaticField",
+        "pk":3,
+        "fields": {
+            "product":1,
+            "field": 3,
+            "value": "y"
+
+        }
+    },
+    {
+        "model":"Product.ProductStaticField",
+        "pk":3,
+        "fields": {
+            "product":1,
+            "field":3,
+            "value": "y"
+
+        }
+    },
+    {
+        "model":"Product.ProductStaticField",
+        "pk":4,
+        "fields": {
+            "product":1,
+            "field": 4,
+            "value": "y"
+
+        }
+    },
+    {
+        "model":"Product.ProductStaticField",
+        "pk":5,
+        "fields": {
+            "product":1,
+            "field": 5,
+            "value": "y"
+
+        }
+    }
+
+    
+
 ]

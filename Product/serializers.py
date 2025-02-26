@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import ToplevelTopic,MidlevelTopic,ProductTopic,Product,LowlevelTopic,StaticField
+from .models import ToplevelTopic,MidlevelTopic,ProductTopic,Product,LowlevelTopic,StaticField,ProductInstance
 
 
 
@@ -110,3 +110,22 @@ class GetFieldSerializer(serializers.ModelSerializer):
         else:
             return None
             
+class ProductInstanceSerialiser(serializers.Serializer):
+
+    class Meta:
+        model=ProductInstance
+        fields=("__all__")
+
+
+class ProductSerialiser(serializers.ModelSerializer):
+    product_instances=serializers.SerializerMethodField()
+
+    class Meta:
+        model=Product
+        fields=("id","shop","product_topic","detail","rate","num_of_rates","created_at","product_instances",)
+        
+        def get__product_instances(self,obj):
+            products=ProductInstance.objects.filter(product__id=obj.id)
+            return ProductInstanceSerialiser(instance=products,many=True).data
+
+
