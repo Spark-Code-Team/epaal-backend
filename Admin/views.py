@@ -6,7 +6,7 @@ from rest_framework import status
 from rest_framework.views import APIView
 from django.db import IntegrityError, transaction
 
-from Bank.serializers import FacilityUseerSerialiser
+from Bank.serializers import FacilityUseerSerialiser, GetUserDocumentSerializer
 from User.models import CreditWallet, UserCreditTransaction
 from .models import Shop,Provider,ProviderBranch
 from Product.models import MidlevelTopic,MidlevelTopicProviderBranch
@@ -14,6 +14,7 @@ from User.serializers import UserRegisterSerializer
 from .serializers import ProviderBranchSerializer, ProviderBranchWithProviderSerializer, ShopSerializer,AllShopSerializer,SingleShopSerializer,MidlevelTopicProviderBranchSerializer
 from django.db.models.signals import pre_save
 from Bank.models import UserFacility
+from Bank.models import UserDocumetn
 # Create your views here.
 class ShopView(APIView):
     permission_classes = (IsAuthenticated,)
@@ -284,3 +285,25 @@ class RejectFacilityView(APIView):
         user_facility.status="cancled"
         user_facility.save()
         return Response({"data":"user_facility status changed to reject"},status=status.HTTP_200_OK)
+    
+class GetUserFileView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def post(sself,request):
+        if request.user.role.name != "admin":
+            return Response({"error":"you are not admin"},status=status.HTTP_400_BAD_REQUEST)
+        if request.data.get("user_facility_id") is None or request.data["user_facility_id"] is None:
+            return Response({"error":"send user_facility_id"},status=status.HTTP_400_BAD_REQUEST)
+        if not UserFacility.objects.filter(id=request.data["user_facility_id"]).exists():
+            return Response({"error":"user_facility not found"},status=status.HTTP_404_NOT_FOUND)
+        user_facility=UserFacility.objects.get(id=request.data["user_facility_id"])
+        if user_facility.status != "in_progress":
+            return Response({"error":"user_facility is not in in_progress status"},status=status.HTTP_400_BAD_REQUEST)
+        
+        if UserDocumetn.objects.filter(user_facility=request.data["user_facility_id"]).exists():
+            user_docs=UserDocumetn.objects.filter(user_facility=request.data["user_facility_id"])
+            ser_data=GetUserDocumentSerializer(instance=user_docs,many=True,context={"request":request})
+            return Response({"data":ser_data.data},status=status.HTTP_200_OK)
+        else:
+            return Response({"data":[]},status=status.HTTP_200_OK)
+

@@ -43,3 +43,9 @@ class FacilityUseerSerialiser(serializers.ModelSerializer):
 
     def get_user_name(self,obj):
         return f'{obj.user.first_name} {obj.user.last_name}'
+
+class GetUserDocumentSerializer(serializers.ModelSerializer):
+    document=FacilityDocumentSerializer()
+    class Meta:
+        model = UserDocumetn
+        fields = ("id","document","value","file","status")

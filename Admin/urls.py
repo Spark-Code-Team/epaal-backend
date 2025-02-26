@@ -8,7 +8,8 @@ from .views import (ConnectMidlevelToProviderBranchView,
                     ConfirmWaitingDigitalView,
                     ConfirmWaitingPhysicalView,
                     ConfirmFinalWaitingView,
-                    RejectFacilityView
+                    RejectFacilityView,
+                    GetUserFileView
                     )
 app_name = 'Admin'
 urlpatterns = [
@@ -21,6 +22,7 @@ urlpatterns = [
     path("confirm_waitnig_physical", ConfirmWaitingPhysicalView.as_view(), name="confirm_waitnig_physical"),
     path("confirm_final_waiting", ConfirmFinalWaitingView.as_view(), name="confirm_final_waiting"),
     path("reject_facility", RejectFacilityView.as_view(), name="reject_facility"),
+    path("get_user_file", GetUserFileView.as_view(), name="get_user_file"),
 
 
 
