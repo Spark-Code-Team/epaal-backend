@@ -1,7 +1,7 @@
 
 import requests
 from User.models import CustomUser
-from User.serializers import AddressProfileSerializer, AddressSerializer, ConfirmationSerializer, HomeSerializer, TempAdressSerializer, UserRegisterSerializer
+from User.serializers import AddressProfileSerializer, AddressSerializer, ConfirmationSerializer, HomeSerializer, TempAdressSerializer, UserRegisterSerializer, UserWalletSerialiser
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -13,7 +13,7 @@ from django.utils import timezone
 import random
 import string
 import re
-from .models import OTP,JibitToken,TempAddress,Address
+from .models import OTP, CreditWallet,JibitToken,TempAddress,Address, UserCreditTransaction
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated
 import jdatetime
@@ -368,3 +368,21 @@ class ProfileView(APIView):
         else:
             address=None
         return Response({"data":data,"confirmed_data":confirmed_data,"confirmed_address":confirmed_address,"address_data":address},status=status.HTTP_200_OK)
+    
+
+
+class UserWalletView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self,request):
+        user=request.user
+        if CreditWallet.objects.filter(user=request.user).exists():
+            user_wallet=CreditWallet.objects.get(user=request.user)
+        else:
+            user_wallet=CreditWallet.objects.create(user=request.user,balance=0.0)
+
+        if UserCreditTransaction.objects.filter(credit_wallet=user_wallet).exists():
+            transactions=UserCreditTransaction.objects.filter(credit_wallet=user_wallet).order_by("-created_at")
+            return Response({"data":UserWalletSerialiser(instance=transactions,many=True).data},status=status.HTTP_200_OK)
+        else:
+            return Response({"data":[],"wallet_balance":user_wallet.balance})

@@ -258,7 +258,7 @@ class ConfirmFinalWaitingView(APIView):
 
         user_wallet.balance+=charge_price
         user_wallet.save()
-        UserCreditTransaction.objects.create(credit_wallet=user_wallet,value=charge_price,type="bank_deposite")
+        UserCreditTransaction.objects.create(credit_wallet=user_wallet,value=charge_price,type="bank_deposite",is_booster=True)
         #!create aghsaat
 
         data = {'from': '50002710054854', 'to': request.user.phone_number, 'text': f'*ایوام*\nدرخواست تسهیلات شما توسط ادمین تأیید شد و کیف پول اعتباری مبلغ{charge_price_str} شارژ شد.'}

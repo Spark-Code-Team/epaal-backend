@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from Role.models import Role
 from Role.serializers import RoleSerializer
-from .models import Address, CustomUser,TempAddress
+from .models import Address, CustomUser,TempAddress, UserCreditTransaction
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth import password_validation
 
@@ -151,3 +151,10 @@ class AddressProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Address
         fields = ("postal_code","address")
+
+
+class UserWalletSerialiser(serializers.Serializer):
+
+    class Meta:
+        model=UserCreditTransaction
+        fields=("__all__")

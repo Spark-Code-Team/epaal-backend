@@ -224,6 +224,14 @@ class SendCodeGetawayView(APIView):
 class PrePaymentView(APIView):
     permission_classes = [IsAuthenticated]
 
+    def get(self,request):
+        if UserFacility.objects.filter(user=request.user,level="prepayment",level_number=7,status="in_progress").exists()==False:
+            return Response({"message":"You do not have any facility in this level"},status=status.HTTP_400_BAD_REQUEST)
+        user_facility=UserFacility.objects.get(user=request.user,level="prepayment",level_number=7,status="in_progress")
+        string_pre_payment=str(int(float(user_facility.given_value)*(float(user_facility.pre_payment_percent)/100)))
+        return Response({"data":string_pre_payment},status=status.HTTP_200_OK)
+
+
     def post(self,request):
         if UserFacility.objects.filter(user=request.user,level="prepayment",level_number=7,status="in_progress").exists()==False:
             return Response({"message":"You do not have any facility in this level"},status=status.HTTP_400_BAD_REQUEST)
@@ -242,3 +250,13 @@ class InquiryUserFacilityView(APIView):
         user_facilities=UserFacility.objects.get(user=request.user,status="in_progress")
         ser_data=FacilityUseerSerialiser(instance=user_facilities)
         return Response({"data":ser_data.data},status=status.HTTP_200_OK)
+    
+
+
+
+class GetUserFacilityView(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self,request):
+        pass

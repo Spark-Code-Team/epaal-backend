@@ -99,6 +99,7 @@ class UserCreditTransaction(models.Model):
     credit_wallet=models.ForeignKey(CreditWallet,on_delete=models.CASCADE,related_name="credit_wallet_id_user_credit_transaction")
     value=models.FloatField()
     type=models.CharField(max_length=100)
+    is_booster=models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
