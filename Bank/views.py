@@ -174,7 +174,6 @@ class SubmitPhysicalView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self,request):
-        print()
         if UserFacility.objects.filter(user=request.user,level__in=["submit_physical","waiting_physical"],level_number=5,status="in_progress").exists()==False:
             return Response({"message":"You do not have any facility in this level"},status=status.HTTP_400_BAD_REQUEST)
         if UserFacility.objects.filter(user=request.user,level="submit_physical",level_number=5,status="in_progress").exists():
@@ -186,7 +185,7 @@ class SubmitPhysicalView(APIView):
         if UserFacility.objects.filter(user=request.user,level="submit_physical",level_number=5,status="in_progress").exists()==False:
             return Response({"message":"You do not have any facility in progress"},status=status.HTTP_400_BAD_REQUEST)
         user_facility=UserFacility.objects.get(user=request.user,level="submit_physical",level_number=5,status="in_progress")
-        user_facility.level="wai`ting_physical"
+        user_facility.level="waiting_physical"
         user_facility.save()
         return Response({"message":"now you are pendinf for admin confirmation"},status=status.HTTP_200_OK)
     

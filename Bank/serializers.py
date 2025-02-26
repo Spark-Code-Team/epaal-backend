@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Facility,Bank, FacilityDocument,FacilityInstallmentNumber, UserDocumetn, UserFacility
+from .models import Facility,Bank, FacilityDocument,FacilityInstallmentNumber, UserDocumetn, UserFacility, UserInstallment
 
 class BankSerializer(serializers.ModelSerializer):
     class Meta:
@@ -49,3 +49,10 @@ class GetUserDocumentSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserDocumetn
         fields = ("id","document","value","file","status")
+
+
+class UserInstallmentSerialiser(serializers.ModelSerializer):
+
+    class Meta:
+        model=UserInstallment
+        fields=("id","is_paid","status","installment_number","paid_date","created_at")

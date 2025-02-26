@@ -10,6 +10,7 @@ from User.views import (
     ShowAddressView,
     ProfileView,UserWalletView,
     MyFacilityView,
+    MyInstallmentView,
 )
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -30,6 +31,7 @@ urlpatterns = [
     path('profile/', ProfileView.as_view(), name='profile'),
     path('wallet/', UserWalletView.as_view(), name='wallet'),
     path('my_facility/', MyFacilityView.as_view(), name='my_facility'),
+    path('my_installment/', MyInstallmentView.as_view(), name='my_installment'),
     path('send_otp_second_phone_number/', SendSecondPhoneOTP.as_view(), name='send_otp_second_phone_number'),
 
 ]

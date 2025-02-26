@@ -108,7 +108,7 @@ class UserInstallment(models.Model):
     amount = models.FloatField()
     final_amount=models.FloatField()
     is_paid=models.BooleanField(default=False)
-    status = models.CharField(max_length=100)
+    status = models.CharField(max_length=100,default="not_paid")
     paid_date = models.DateField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

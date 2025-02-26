@@ -1,7 +1,7 @@
 
 import requests
-from Bank.models import UserFacility
-from Bank.serializers import FacilityUseerSerialiser
+from Bank.models import UserFacility,UserInstallment
+from Bank.serializers import FacilityUseerSerialiser, UserInstallmentSerialiser
 from User.models import CustomUser
 from User.serializers import AddressProfileSerializer, AddressSerializer, ConfirmationSerializer, HomeSerializer, TempAdressSerializer, UserRegisterSerializer, UserWalletSerialiser
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -422,3 +422,26 @@ class MyFacilityView(APIView):
             "installment": installment_ser_data,
             "done": done_ser_data
         }, status=status.HTTP_200_OK)
+
+
+class MyInstallmentView(APIView):
+
+    permission_classes = [IsAuthenticated]
+    def get(seld,request): 
+        if not UserFacility.objects.filter(user=request.user,status="installment").exists():
+            return Response({"error":"you dont have any installment"},status=status.HTTP_400_BAD_REQUEST)
+        installment_instance=UserFacility.objects.get(user=request.user,status="installment")
+        not_paid_instance=UserInstallment.objects.filter(user_facility=installment_instance,is_paid=False,status="not_paid")
+        paid_instance=UserInstallment.objects.filter(user_facility=installment_instance,is_paid=True,status="paid")
+        if not_paid_instance:
+            not_paid_data=UserInstallmentSerialiser(instance=not_paid_instance,many=True).data
+        else:
+            not_paid_data=None
+
+        if paid_instance:
+            paid_data=UserInstallmentSerialiser(instance=paid_instance,many=True).data
+        else:
+            paid_data=None
+
+        return Response({"paid":paid_data,"not_piad":not_paid_data},status=status.HTTP_200_OK)
+
