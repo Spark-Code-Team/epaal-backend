@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
 from django.db import IntegrityError, transaction
-
+import datetime
 from Bank.serializers import FacilityUseerSerialiser, GetUserDocumentSerializer
 from User.models import CreditWallet, UserCreditTransaction
 from .models import Shop,Provider,ProviderBranch
@@ -14,7 +14,7 @@ from User.serializers import UserRegisterSerializer
 from .serializers import ProviderBranchSerializer, ProviderBranchWithProviderSerializer, ShopSerializer,AllShopSerializer,SingleShopSerializer,MidlevelTopicProviderBranchSerializer
 from django.db.models.signals import pre_save
 from Bank.models import UserFacility
-from Bank.models import UserDocumetn
+from Bank.models import UserDocumetn,UserInstallment
 # Create your views here.
 class ShopView(APIView):
     permission_classes = (IsAuthenticated,)
@@ -233,6 +233,12 @@ class ConfirmFinalWaitingView(APIView):
 
     permission_classes = (IsAuthenticated,)
 
+    def canculate_installment(self,num_of_instalmment,year_percent,cost):
+        month_percent=year_percent/1200
+        numerator=cost*month_percent
+        denominator=1-pow(month_percent+1,(-1*num_of_instalmment))
+        return numerator/denominator
+
     def post(self,request):
         if request.user.role.name != "admin":
             return Response({"error":"you are not admin"},status=status.HTTP_400_BAD_REQUEST)
@@ -248,7 +254,7 @@ class ConfirmFinalWaitingView(APIView):
         converted_percent=float(user_facility.evaam_subscripton_percent)/100
         evaam_value=int(user_facility.given_value)*converted_percent*new_percent
         charge_price=int(user_facility.given_value)-evaam_value
-        charge_price_str=str(charge_price)
+        charge_price_str=str(int(charge_price))
         user_facility.status="installment"
         user_facility.save()
         if CreditWallet.objects.filter(user=request.user).exists():
@@ -258,10 +264,21 @@ class ConfirmFinalWaitingView(APIView):
 
         user_wallet.balance+=charge_price
         user_wallet.save()
+        number_of_installment=user_facility.choosen_facility_installment_number.number_of_installment
         UserCreditTransaction.objects.create(credit_wallet=user_wallet,value=charge_price,type="bank_deposite",is_booster=True)
-        #!create aghsaat
-
-        data = {'from': '50002710054854', 'to': request.user.phone_number, 'text': f'*ایوام*\nدرخواست تسهیلات شما توسط ادمین تأیید شد و کیف پول اعتباری مبلغ{charge_price_str} شارژ شد.'}
+        result=self.canculate_installment(number_of_installment,float(user_facility.bank_interest_percent),float(user_facility.given_value))
+        for number in range(1,number_of_installment+1):
+            UserInstallment.objects.create(
+                user_facility=user_facility,
+                installment_number=number,
+                amount=result,
+                due_date=datetime.datetime.now() + datetime.timedelta(days=30 * number),
+                final_amount=result,
+                status="not_paid"
+            )
+        text= f'*ایوام*\n درخواست تسهیلات شما تأیید شد و کیف پول اعتباری  شما مبلغ {charge_price_str} تومان شارژ شد.'
+        print(text)
+        data = {'from': '50002710054854', 'to':request.user.phone_number, 'text':text}
         response = requests.post('https://console.melipayamak.com/api/send/simple/2d475adf0f3f4fa3bf59f1a99eed0712', json=data)
         return Response({"data":"user_facility status changed to done"},status=status.HTTP_200_OK)
     

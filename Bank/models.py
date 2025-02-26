@@ -99,3 +99,21 @@ class UserDocumetn(models.Model):
         verbose_name = 'user_document'
         verbose_name_plural = 'user_documents'
         db_table = 'user_document'
+
+
+class UserInstallment(models.Model):
+    user_facility = models.ForeignKey(UserFacility, on_delete=models.CASCADE, related_name="user_facility_id_user_installment")
+    installment_number = models.IntegerField()
+    due_date = models.DateField()
+    amount = models.FloatField()
+    final_amount=models.FloatField()
+    is_paid=models.BooleanField(default=False)
+    status = models.CharField(max_length=100)
+    paid_date = models.DateField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'user_installment'
+        verbose_name_plural = 'user_installments'
+        db_table = 'user_installment'

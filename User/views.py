@@ -1,5 +1,7 @@
 
 import requests
+from Bank.models import UserFacility
+from Bank.serializers import FacilityUseerSerialiser
 from User.models import CustomUser
 from User.serializers import AddressProfileSerializer, AddressSerializer, ConfirmationSerializer, HomeSerializer, TempAdressSerializer, UserRegisterSerializer, UserWalletSerialiser
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -386,3 +388,37 @@ class UserWalletView(APIView):
             return Response({"data":ser_data.data,"wallet_balance":user_wallet.balance},status=status.HTTP_200_OK)
         else:
             return Response({"data":[],"wallet_balance":user_wallet.balance},status=status.HTTP_200_OK)
+
+class MyFacilityView(APIView):
+
+    permission_classes = [IsAuthenticated]
+    def get(self,request):
+        cancled_instance=UserFacility.objects.filter(user=request.user,status="cancled")
+        in_progress_instance=UserFacility.objects.filter(user=request.user,status="in_progress")
+        installment_instance=UserFacility.objects.filter(user=request.user,status="installment")
+        done_instance=UserFacility.objects.filter(user=request.user,status="done")
+        if cancled_instance:
+            cancled_ser_data=FacilityUseerSerialiser(instance=cancled_instance,many=True).data
+        else:
+            cancled_ser_data=None
+        if in_progress_instance:
+            in_progress_ser_data = FacilityUseerSerialiser(instance=in_progress_instance, many=True).data
+        else:
+            in_progress_ser_data = None
+
+        if installment_instance:
+            installment_ser_data = FacilityUseerSerialiser(instance=installment_instance, many=True).data
+        else:
+            installment_ser_data = None
+
+        if done_instance:
+            done_ser_data = FacilityUseerSerialiser(instance=done_instance, many=True).data
+        else:
+            done_ser_data = None
+
+        return Response({
+            "canceled": cancled_ser_data,
+            "in_progress": in_progress_ser_data,
+            "installment": installment_ser_data,
+            "done": done_ser_data
+        }, status=status.HTTP_200_OK)

@@ -8,7 +8,8 @@ from User.views import (
     ConfirmInformationView,
     SendSecondPhoneOTP,
     ShowAddressView,
-    ProfileView,UserWalletView
+    ProfileView,UserWalletView,
+    MyFacilityView,
 )
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -28,6 +29,7 @@ urlpatterns = [
     path('confirm_address/', ConfirmAddressView.as_view(), name='confirm_address'),
     path('profile/', ProfileView.as_view(), name='profile'),
     path('wallet/', UserWalletView.as_view(), name='wallet'),
+    path('my_facility/', MyFacilityView.as_view(), name='my_facility'),
     path('send_otp_second_phone_number/', SendSecondPhoneOTP.as_view(), name='send_otp_second_phone_number'),
 
 ]
