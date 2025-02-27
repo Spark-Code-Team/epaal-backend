@@ -3,7 +3,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
-from .serializers import All_ToplevelSerializer,ToplevelTopicSerializer,MidlevelTopicSerializer,ProductTopicSerializer,LowlevelTopicSerializer,CreateFieldSerializer,GetFieldSerializer,Product
+from .serializers import All_ToplevelSerializer, ProductSerialiser,ToplevelTopicSerializer,MidlevelTopicSerializer,ProductTopicSerializer,LowlevelTopicSerializer,CreateFieldSerializer,GetFieldSerializer,Product
 from .models import MidlevelTopic, ProductTopic, StaticField, ToplevelTopic , LowlevelTopic
 from rest_framework.parsers import MultiPartParser
 from django.contrib.contenttypes.models import ContentType
@@ -320,8 +320,5 @@ class SingleProductTopic(APIView):
 class AllProductView(APIView):
 
     def post(self,request):
-        if request.data.get("low_level_topic") is None or request.data["low_level_topic"]=="":
-            return Response({"error":"please send low_level_topic"},status=status.HTTP_400_BAD_REQUEST)
-        low_levle= request.data["low_level_topic"]
-        products=Product.objects.filter(product_topic__lowlevel_topic=low_levle)
-        
+        products=Product.objects.filter()
+        return Response(ProductSerialiser(instance=products,many=True).data,status=status.HTTP_200_OK)

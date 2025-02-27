@@ -1,8 +1,11 @@
 from django.urls import path, include, re_path
 from User.views import (
+    AddProductToCardView,
     ConfirmAddressView,
     HomeView,
     LoginView,
+    MyCartView,
+    ReplaceCartCardView,
     SendOTP,
     LogoutView,
     ConfirmInformationView,
@@ -32,6 +35,9 @@ urlpatterns = [
     path('wallet/', UserWalletView.as_view(), name='wallet'),
     path('my_facility/', MyFacilityView.as_view(), name='my_facility'),
     path('my_installment/', MyInstallmentView.as_view(), name='my_installment'),
+    path('my_cart/', MyCartView.as_view(), name='my_cart'),
+    path('add_product_to_card/', AddProductToCardView.as_view(), name='add_product_to_card'),
+    path('replace_cart/', ReplaceCartCardView.as_view(), name='replace_cart'),
     path('send_otp_second_phone_number/', SendSecondPhoneOTP.as_view(), name='send_otp_second_phone_number'),
 
 ]

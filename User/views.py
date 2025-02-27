@@ -2,6 +2,9 @@
 import requests
 from Bank.models import UserFacility,UserInstallment
 from Bank.serializers import FacilityUseerSerialiser, UserInstallmentSerialiser
+from Product.serializers import ProductSerialiser
+from Product.models import Product
+from Order.models import Cart
 from User.models import CustomUser
 from User.serializers import AddressProfileSerializer, AddressSerializer, ConfirmationSerializer, HomeSerializer, TempAdressSerializer, UserRegisterSerializer, UserWalletSerialiser
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -427,7 +430,7 @@ class MyFacilityView(APIView):
 class MyInstallmentView(APIView):
 
     permission_classes = [IsAuthenticated]
-    def get(seld,request): 
+    def get(self,request): 
         if not UserFacility.objects.filter(user=request.user,status="installment").exists():
             return Response({"error":"you dont have any installment"},status=status.HTTP_400_BAD_REQUEST)
         installment_instance=UserFacility.objects.get(user=request.user,status="installment")
@@ -445,3 +448,51 @@ class MyInstallmentView(APIView):
 
         return Response({"paid":paid_data,"not_piad":not_paid_data},status=status.HTTP_200_OK)
 
+class MyCartView(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self,request): 
+        if Cart.objects.filter(user=request.user).exists():
+            cart=Cart.objects.get(user=request.user)
+            return Response({"data":ProductSerialiser(instance=cart.products.all(),many=True).data},status=status.HTTP_200_OK)
+        else:
+            Cart.objects.create(user=request.user)
+            return Response({"data":[]},status=status.HTTP_200_OK)
+        
+class AddProductToCardView(APIView):
+    permission_classes = [IsAuthenticated]
+    def post(seld,request): 
+        if Cart.objects.filter(user=request.user).exists():
+            cart=Cart.objects.get(user=request.user)
+        else:
+            cart=Cart.objects.create(user=request.user)
+
+        product_id = request.data.get("product_id")
+        if not product_id:
+            return Response({"error": "product_id is required"}, status=status.HTTP_400_BAD_REQUEST)
+        product = Product.objects.get(id=product_id)
+        cart.products.add(product)
+        cart.save()
+        return Response({"message": "Product added to cart successfully"}, status=status.HTTP_200_OK)            
+        
+class ReplaceCartCardView(APIView):
+    permission_classes = [IsAuthenticated]
+    def post(self,request):
+        if Cart.objects.filter(user=request.user).exists():
+            cart = Cart.objects.get(user=request.user)
+        else:
+            cart = Cart.objects.create(user=request.user)
+
+        product_ids = request.data.get("product_ids")
+        if product_ids ==[]:
+            cart.products.clear()
+            return Response({"message": "products deleted successfully"}, status=status.HTTP_200_OK)
+        if not product_ids:
+            return Response({"error": "product_ids are required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        cart.products.clear()
+        for product_id in product_ids:
+            product = Product.objects.get(id=product_id)
+            cart.products.add(product)
+        cart.save()
+
+        return Response({"message": "Cart updated successfully"}, status=status.HTTP_200_OK)

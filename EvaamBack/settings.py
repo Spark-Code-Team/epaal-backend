@@ -215,13 +215,16 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer",
 }
 
+import os
 
 # CORS-HEADER:
 CORS_ALLOW_ALL_ORIGINS = True
 
+MEDIA_URL = '/media/'
+
+MEDIA_ROOT = os.path.join(BASE_DIR,MEDIA_URL)
 
 # log gile
-import os
 import logging
 from logging import Formatter
 
