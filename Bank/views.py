@@ -249,6 +249,17 @@ class InquiryUserFacilityView(APIView):
         ser_data=FacilityUseerSerialiser(instance=user_facilities)
         return Response({"data":ser_data.data},status=status.HTTP_200_OK)
     
+class UserCretionStatusView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self,request):
+        if UserFacility.objects.filter(user=request.user,status__in=["in_progress","installment"]).exists():
+            return Response({"data":False,"message":"user can not create new facility"},status=status.HTTP_200_OK)
+        else:
+            return Response({"data":True,"message":"user can create new facility"},status=status.HTTP_200_OK)
+    
+
+    
 
 
 
