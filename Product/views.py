@@ -322,3 +322,14 @@ class AllProductView(APIView):
     def post(self,request):
         products=Product.objects.filter()
         return Response(ProductSerialiser(instance=products,many=True).data,status=status.HTTP_200_OK)
+class SingleProductView(APIView):
+
+    def post(self,request):
+        product_id=request.data.get("product_id")
+        if not product_id:
+            return Response({"error":"send product_id"},status=status.HTTP_400_BAD_REQUEST)
+        if Product.objects.filter(id=product_id).exists():
+            return Response({"data":ProductSerialiser(instance=Product.objects.get(id=product_id)).data},status=status.HTTP_200_OK) 
+        else:
+            return Response({"error":"product with this  product_id is not found"},status=status.HTTP_400_BAD_REQUEST)
+
