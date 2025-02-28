@@ -533,3 +533,53 @@ class BuyProductView(APIView):
         return Response({"message":"your bought is done"},status=status.HTTP_200_OK)
         
 
+class PayInstallmentVeiw(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self,request):
+        if UserFacility.objects.filter(user=request.user,status="installment").exists()==False:
+            return Response({"error":"you dont have any installment"},status=status.HTTP_400_BAD_REQUEST)
+        sent_installment_id=request.data.get("installment_id")
+        if not sent_installment_id:
+            return Response({"error":"send valid installment_id"},status=status.HTTP_400_BAD_REQUEST)
+        if UserInstallment.objects.filter(user_facility__user=request.user,id=sent_installment_id,user_facility__status="installment").exists() == False:
+            return Response({"error":"installment not matched"},status=status.HTTP_400_BAD_REQUEST)
+        installmenty_should_pay= UserInstallment.objects.filter(user_facility__user=request.user,user_facility__status="installment",is_paid=False).order_by("installment_number").first()
+        sent_installment=UserInstallment.objects.get(id=sent_installment_id)
+        if sent_installment.is_paid:
+            return Response({"error":"you piad it before"},status=status.HTTP_400_BAD_REQUEST)
+        if installmenty_should_pay.id !=sent_installment.id:
+            return Response({"error":f"you should pay insatellment {installmenty_should_pay.installment_number} first"},status=status.HTTP_400_BAD_REQUEST)
+        last_install_ment=UserInstallment.objects.filter(user_facility__user=request.user,user_facility__status="installment",is_paid=False).order_by("-installment_number").first()
+
+        sent_installment.is_paid=True
+        sent_installment.status="paid"
+        sent_installment.paid_date=datetime.datetime.now().date()
+        sent_installment.save() 
+        
+        if last_install_ment.id==sent_installment.id :
+            last_install_ment.user_facility.status="done"
+            last_install_ment.user_facility.save()
+        return Response({"message":"installment is paid"},status=status.HTTP_200_OK)
+
+    
+
+class GetCartCostView(APIView):
+    permission_classes = [IsAuthenticated]
+    def final_cost(self,cost,percent):
+        return cost - (cost * percent / 100)
+    
+    def get(self,request):
+        if Cart.objects.filter(user=request.user).exists():
+            cart = Cart.objects.get(user=request.user)
+        else:
+            cart = Cart.objects.create(user=request.user)
+
+        products=cart.products.all()
+        if not products:
+            return Response({"erroe":"your cart is empty"},status=status.HTTP_400_BAD_REQUEST)
+        all_cost=0
+        for product in products:
+            all_cost+=self.final_cost(product.price,product.discount)
+
+        return Response({"all_products_cost":all_cost},status=status.HTTP_200_OK)

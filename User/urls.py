@@ -2,9 +2,11 @@ from django.urls import path, include, re_path
 from User.views import (
     AddProductToCardView,
     ConfirmAddressView,
+    GetCartCostView,
     HomeView,
     LoginView,
     MyCartView,
+    PayInstallmentVeiw,
     ReplaceCartCardView,
     SendOTP,
     LogoutView,
@@ -40,6 +42,8 @@ urlpatterns = [
     path('add_product_to_card/', AddProductToCardView.as_view(), name='add_product_to_card'),
     path('replace_cart/', ReplaceCartCardView.as_view(), name='replace_cart'),
     path('buy_products/', BuyProductView.as_view(), name='buy_products'),
+    path('get_cart_cost/', GetCartCostView.as_view(), name='get_cart_cost'),
     path('send_otp_second_phone_number/', SendSecondPhoneOTP.as_view(), name='send_otp_second_phone_number'),
+    path('pay_installment/', PayInstallmentVeiw.as_view(), name='pay_installment'),
 
 ]
