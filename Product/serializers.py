@@ -1,4 +1,6 @@
 from rest_framework import serializers
+
+from Admin.models import Shop
 from .models import ToplevelTopic,MidlevelTopic,ProductTopic,Product,LowlevelTopic,StaticField,ProductInstance
 
 
@@ -116,19 +118,42 @@ class ProductInstanceSerialiser(serializers.ModelSerializer):
         model=ProductInstance
         fields=("__all__")
 
+class ProductInstanceForProductSerialiser(serializers.ModelSerializer):
 
+    class Meta:
+        model=ProductInstance
+        fields=("capacity","price","discount")
+class ShopSerialiser(serializers.ModelSerializer):
+
+    class Meta:
+        model=Shop
+        fields=("__all__")
+
+class LowlevelTopicSerialiser(serializers.ModelSerializer):
+    class Meta:
+        model=LowlevelTopic
+        fields=("__all__")
+
+class ProductTopicSerialiser(serializers.ModelSerializer):
+    lowlevel_topic=LowlevelTopicSerialiser()
+    class Meta:
+        model=ProductTopic
+        fields=("__all__")
+
+ 
 class ProductSerialiser(serializers.ModelSerializer):
     product_instances=serializers.SerializerMethodField()
     field=serializers.SerializerMethodField()
     fake_picture=serializers.SerializerMethodField()
-
+    shop=ShopSerialiser()
+    product_topic=ProductTopicSerialiser()
     class Meta:
         model=Product
-        fields=("id","shop","product_topic","detail","rate","num_of_rates","created_at","product_instances","field","fake_picture")
+        fields=("id","shop","product_topic","detail","rate","num_of_rates","created_at","product_instances","field","fake_picture","product_topic")
         
     def get_product_instances(self,obj):
         products=ProductInstance.objects.filter(product=obj.id)
-        return ProductInstanceSerialiser(instance=products,many=True).data
+        return ProductInstanceForProductSerialiser(instance=products,many=True).data
      
     def get_field(self,obj):
         return {"field1":"value1","field2":"value2","field3":"value3","field4":"value4","field5":"value5"}
