@@ -149,7 +149,7 @@ class ProductSerialiser(serializers.ModelSerializer):
     product_topic=ProductTopicSerialiser()
     class Meta:
         model=Product
-        fields=("id","shop","product_topic","detail","rate","num_of_rates","created_at","product_instances","field","fake_picture","product_topic")
+        fields=("id","name","shop","product_topic","detail","rate","num_of_rates","created_at","product_instances","field","fake_picture","product_topic")
         
     def get_product_instances(self,obj):
         products=ProductInstance.objects.filter(product=obj.id)
