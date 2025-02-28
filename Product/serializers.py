@@ -122,7 +122,7 @@ class ProductInstanceForProductSerialiser(serializers.ModelSerializer):
 
     class Meta:
         model=ProductInstance
-        fields=("capacity","price","discount")
+        fields=("id","capacity","price","discount")
 class ShopSerialiser(serializers.ModelSerializer):
 
     class Meta:
