@@ -149,3 +149,13 @@ class ProductSerialiser(serializers.ModelSerializer):
         if obj.id==7:
             return "https://shob360.com/wp-content/uploads/2021/08/1-3.jpg"    
 
+class NormalProductSerialiser(serializers.ModelSerializer):
+
+    class Meta:
+        model=Product
+        fields=("__all__")
+class ProductInstanceSerialiser(serializers.ModelSerializer):
+    product=NormalProductSerialiser()
+    class Meta:
+        model=ProductInstance
+        fields=("__all__")

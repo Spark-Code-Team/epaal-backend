@@ -1,12 +1,12 @@
 from django.db import models
 
-from Product.models import Product
+from Product.models import Product, ProductInstance
 from User.models import CustomUser,Address
 from Transaction.models import Tranaction
 # Create your models here.
 class Cart(models.Model):
     user=models.ForeignKey(CustomUser,on_delete=models.CASCADE,related_name="user_id_cart")
-    products=models.ManyToManyField(Product,related_name="product_id_cart",null=True,blank=True)
+    products=models.ManyToManyField(ProductInstance,related_name="product_id_cart",null=True,blank=True)
 
     class Meta:
         verbose_name = 'cart'

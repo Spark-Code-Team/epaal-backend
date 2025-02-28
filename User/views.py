@@ -2,8 +2,8 @@
 import requests
 from Bank.models import UserFacility,UserInstallment
 from Bank.serializers import FacilityUseerSerialiser, UserInstallmentSerialiser
-from Product.serializers import ProductSerialiser
-from Product.models import Product
+from Product.serializers import ProductInstanceSerialiser, ProductSerialiser
+from Product.models import Product, ProductInstance
 from Order.models import Cart
 from User.models import CustomUser
 from User.serializers import AddressProfileSerializer, AddressSerializer, ConfirmationSerializer, HomeSerializer, TempAdressSerializer, UserRegisterSerializer, UserWalletSerialiser
@@ -453,7 +453,7 @@ class MyCartView(APIView):
     def get(self,request): 
         if Cart.objects.filter(user=request.user).exists():
             cart=Cart.objects.get(user=request.user)
-            return Response({"data":ProductSerialiser(instance=cart.products.all(),many=True).data},status=status.HTTP_200_OK)
+            return Response({"data":ProductInstanceSerialiser(instance=cart.products.all(),many=True).data},status=status.HTTP_200_OK)
         else:
             Cart.objects.create(user=request.user)
             return Response({"data":[]},status=status.HTTP_200_OK)
@@ -469,8 +469,10 @@ class AddProductToCardView(APIView):
         product_id = request.data.get("product_id")
         if not product_id:
             return Response({"error": "product_id is required"}, status=status.HTTP_400_BAD_REQUEST)
-        product = Product.objects.get(id=product_id)
-        cart.products.add(product)
+        if ProductInstance.objects.filter(id=product_id).exists()==False:
+            return Response({"error":f"productintance with id {product_id} is not exist"},status=status.HTTP_400_BAD_REQUEST)
+        product_instrance = ProductInstance.objects.get(id=product_id)
+        cart.products.add(product_instrance)
         cart.save()
         return Response({"message": "Product added to cart successfully"}, status=status.HTTP_200_OK)            
         
@@ -483,6 +485,9 @@ class ReplaceCartCardView(APIView):
             cart = Cart.objects.create(user=request.user)
 
         product_ids = request.data.get("product_ids")
+        for product_id in request.data.get("product_ids"):
+            if ProductInstance.objects.filter(id=product_id).exists()==False:
+                return Response({"error":f"product instance with id {product_id} does not exist"},status=status.HTTP_400_BAD_REQUEST)
         if product_ids ==[]:
             cart.products.clear()
             return Response({"message": "products deleted successfully"}, status=status.HTTP_200_OK)
@@ -491,8 +496,40 @@ class ReplaceCartCardView(APIView):
 
         cart.products.clear()
         for product_id in product_ids:
-            product = Product.objects.get(id=product_id)
+            product = ProductInstance.objects.get(id=product_id)
             cart.products.add(product)
         cart.save()
 
         return Response({"message": "Cart updated successfully"}, status=status.HTTP_200_OK)
+    
+class BuyProductView(APIView):
+    permission_classes = [IsAuthenticated]
+    def final_cost(self,cost,percent):
+        return cost - (cost * percent / 100)
+    
+    def post(self,request):
+        if Cart.objects.filter(user=request.user).exists():
+            cart = Cart.objects.get(user=request.user)
+        else:
+            cart = Cart.objects.create(user=request.user)
+
+        products=cart.products.all()
+        if not products:
+            return Response({"erroe":"your cart is empty"},status=status.HTTP_400_BAD_REQUEST)
+        all_cost=0
+        for product in products:
+            all_cost+=self.final_cost(product.price,product.discount)
+
+        wallet=CreditWallet.objects.get_or_create(user=request.user)[0]
+        if wallet.balance<all_cost:
+            return Response({"error":"your balance is not enough"},status=status.HTTP_400_BAD_REQUEST)
+        wallet.balance-=all_cost
+        wallet.save()
+        UserCreditTransaction.objects.create(credit_wallet=wallet,
+                                                value=all_cost,
+                                                type="bought",
+                                                is_booster=False
+                                                )
+        return Response({"message":"your bought is done"},status=status.HTTP_200_OK)
+        
+

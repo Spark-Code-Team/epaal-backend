@@ -14,6 +14,7 @@ from User.views import (
     ProfileView,UserWalletView,
     MyFacilityView,
     MyInstallmentView,
+    BuyProductView,
 )
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -38,6 +39,7 @@ urlpatterns = [
     path('my_cart/', MyCartView.as_view(), name='my_cart'),
     path('add_product_to_card/', AddProductToCardView.as_view(), name='add_product_to_card'),
     path('replace_cart/', ReplaceCartCardView.as_view(), name='replace_cart'),
+    path('buy_products/', BuyProductView.as_view(), name='buy_products'),
     path('send_otp_second_phone_number/', SendSecondPhoneOTP.as_view(), name='send_otp_second_phone_number'),
 
 ]

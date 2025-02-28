@@ -203,10 +203,10 @@ class ConfirmWaitingDigitalView(APIView):
         if (user_facility.status != "in_progress") or (user_facility.level != "waiting_digital") or user_facility.level_number != 4:
             return Response({"error":"user_facility is not in waiting_digital level"},status=status.HTTP_400_BAD_REQUEST)
         
-        user_facility.level="submit_phusical"
+        user_facility.level="submit_physical"
         user_facility.level_number=5
         user_facility.save()
-        return Response({"data":"user_facility level changed to submit_phusical"},status=status.HTTP_200_OK)
+        return Response({"data":"user_facility level changed to submit_physical"},status=status.HTTP_200_OK)
         
 
 class ConfirmWaitingPhysicalView(APIView):
