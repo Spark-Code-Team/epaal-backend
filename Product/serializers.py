@@ -161,24 +161,47 @@ class ProductSerialiser(serializers.ModelSerializer):
     def get_fake_picture(self,obj):
         if obj.id==1:
             return "https://dkstatics-public.digikala.com/digikala-products/c23b49b0be1c4ae5b2a3d7a3281d2f1731065243_1726037574.jpg?x-oss-process=image/resize,m_lfit,h_800,w_800/format,webp/quality,q_90"
-        if obj.id==2:
+        elif obj.id==2:
             return "https://digimarketplus.ir/wp-content/uploads/2021/09/%D8%AE%D8%B1%DB%8C%D8%AF-%DB%8C%D8%AE%DA%86%D8%A7%D9%84-%D8%A7%D8%B3%D9%86%D9%88%D8%A7.jpg"
-        if obj.id==3:
-            return "https://www.sanggallery.com/upload/product/1722332861-Shiseido-Clarifying-Cleansing-Foam.jpg"
-        if obj.id==4:
+        elif obj.id==3:
+            return "https://www.sanggallery.com/upload/product/1722332861-Shiseido-Clarelifying-Cleansing-Foam.jpg"
+        elif obj.id==4:
             return "https://www.motormarkett.com/wp-content/uploads/scoopy1.png"
-        if obj.id==5:
+        elif obj.id==5:
             return "https://image.torob.com/base/images/J0/vJ/J0vJxuUdz-CKf_ez.jpg_/560x560.webp"
-        if obj.id==6:
+        elif obj.id==6:
             return "https://www.toolsap.com/wp-content/uploads/2018/05/gcai150r.jpg"
-        if obj.id==7:
-            return "https://shob360.com/wp-content/uploads/2021/08/1-3.jpg"    
-
+        elif obj.id==7:
+            return "https://shob360.com/wp-content/uploads/2021/08/1-3.jpg"
+        else:
+            return None
 class NormalProductSerialiser(serializers.ModelSerializer):
+    fake_picture=serializers.SerializerMethodField()
+    field=serializers.SerializerMethodField()
 
     class Meta:
         model=Product
         fields=("__all__")
+     
+    def get_field(self,obj):
+        return {"field1":"value1","field2":"value2","field3":"value3","field4":"value4","field5":"value5"}
+    def get_fake_picture(self,obj):
+        if obj.id==1:
+            return "https://dkstatics-public.digikala.com/digikala-products/c23b49b0be1c4ae5b2a3d7a3281d2f1731065243_1726037574.jpg?x-oss-process=image/resize,m_lfit,h_800,w_800/format,webp/quality,q_90"
+        elif obj.id==2:
+            return "https://digimarketplus.ir/wp-content/uploads/2021/09/%D8%AE%D8%B1%DB%8C%D8%AF-%DB%8C%D8%AE%DA%86%D8%A7%D9%84-%D8%A7%D8%B3%D9%86%D9%88%D8%A7.jpg"
+        elif obj.id==3:
+            return "https://www.sanggallery.com/upload/product/1722332861-Shiseido-Clarelifying-Cleansing-Foam.jpg"
+        elif obj.id==4:
+            return "https://www.motormarkett.com/wp-content/uploads/scoopy1.png"
+        elif obj.id==5:
+            return "https://image.torob.com/base/images/J0/vJ/J0vJxuUdz-CKf_ez.jpg_/560x560.webp"
+        elif obj.id==6:
+            return "https://www.toolsap.com/wp-content/uploads/2018/05/gcai150r.jpg"
+        elif obj.id==7:
+            return "https://shob360.com/wp-content/uploads/2021/08/1-3.jpg"
+        else:
+            return None
 class ProductInstanceSerialiser(serializers.ModelSerializer):
     product=NormalProductSerialiser()
     class Meta:
