@@ -530,6 +530,7 @@ class BuyProductView(APIView):
                                                 type="bought",
                                                 is_booster=False
                                                 )
+        cart.products.clear()
         return Response({"message":"your bought is done"},status=status.HTTP_200_OK)
         
 
