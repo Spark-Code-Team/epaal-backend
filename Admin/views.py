@@ -257,10 +257,10 @@ class ConfirmFinalWaitingView(APIView):
         charge_price_str=str(int(charge_price))
         user_facility.status="installment"
         user_facility.save()
-        if CreditWallet.objects.filter(user=request.user).exists():
-            user_wallet=CreditWallet.objects.get(user=request.user)
+        if CreditWallet.objects.filter(user=user_facility.user).exists():
+            user_wallet=CreditWallet.objects.get(user=user_facility.user)
         else:
-            user_wallet=CreditWallet.objects.create(user=request.user,balance=0.0)
+            user_wallet=CreditWallet.objects.create(user=user_facility.user,balance=0.0)
 
         user_wallet.balance+=charge_price
         user_wallet.save()
@@ -278,7 +278,7 @@ class ConfirmFinalWaitingView(APIView):
             )
         text= f'*ایوام*\n درخواست تسهیلات شما تأیید شد و کیف پول اعتباری  شما مبلغ {charge_price_str} تومان شارژ شد.'
         print(text)
-        data = {'from': '50002710054854', 'to':request.user.phone_number, 'text':text}
+        data = {'from': '50002710054854', 'to':user_facility.user.phone_number, 'text':text}
         response = requests.post('https://console.melipayamak.com/api/send/simple/2d475adf0f3f4fa3bf59f1a99eed0712', json=data)
         return Response({"data":"user_facility status changed to done"},status=status.HTTP_200_OK)
     
