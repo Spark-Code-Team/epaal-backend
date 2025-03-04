@@ -182,9 +182,9 @@ class GetAllWaitingFacilityView(APIView):
         if request.user.role.name != "admin":
             return Response({"error":"you are not admin"},status=status.HTTP_400_BAD_REQUEST)
         
-        if UserFacility.objects.filter(level__in=["waiting_digital","waiting_physical","final_waiting"]).exists() == False:
+        if UserFacility.objects.filter(level__in=["waiting_digital","waiting_physical","final_waiting"],status="in_progress").exists() == False:
             return Response({"data":{}},status=status.HTTP_200_OK)
-        user_facilities=UserFacility.objects.filter(level__in=["waiting_digital","waiting_physical","final_waiting"])
+        user_facilities=UserFacility.objects.filter(level__in=["waiting_digital","waiting_physical","final_waiting"],status="in_progress")
         ser_data=FacilityUseerSerialiser(instance=user_facilities,many=True)
         return Response({"data":ser_data.data},status=status.HTTP_200_OK)
 
