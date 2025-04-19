@@ -3,11 +3,13 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
-from .serializers import All_ToplevelSerializer, ProductSerialiser,ToplevelTopicSerializer,MidlevelTopicSerializer,ProductTopicSerializer,LowlevelTopicSerializer,CreateFieldSerializer,GetFieldSerializer,Product
-from .models import MidlevelTopic, ProductTopic, StaticField, ToplevelTopic , LowlevelTopic
-from rest_framework.parsers import MultiPartParser
+from .serializers import All_ToplevelSerializer, CreateProductInstanceSerialiser, CreateProductPictureSerialiser, CreateProductSerialiser, ProductSerialiser,ToplevelTopicSerializer,MidlevelTopicSerializer,ProductTopicSerializer,LowlevelTopicSerializer,CreateFieldSerializer,GetFieldSerializer,Product
+from .models import FieldValue, MidlevelTopic, ProductDynamicField, ProductInstance, ProductStaticField, ProductTopic, StaticField, ToplevelTopic , LowlevelTopic
+from rest_framework.parsers import MultiPartParser,FormParser
 from django.contrib.contenttypes.models import ContentType
-
+from Admin.models import Shop
+from django.db import IntegrityError, transaction
+import json
 # Create your views here.
 
 class ALLCategoryView(APIView):
@@ -333,3 +335,173 @@ class SingleProductView(APIView):
         else:
             return Response({"error":"product with this  product_id is not found"},status=status.HTTP_400_BAD_REQUEST)
 
+
+class CreateProductView(APIView):
+    permission_classes = [IsAuthenticated]
+    parser_classes=(MultiPartParser,FormParser)
+
+    def post(self,request):
+        if request.user.role.name != "shop_admin":
+            return Response({"error":"you can't do this"},status=status.HTTP_400_BAD_REQUEST)
+        
+        product_topic_id=request.data.get("product_topic_id")
+        product_name=request.data.get("name")
+        product_data = request.data.copy()
+        product_data["creator_id"] = request.user.id
+        if not product_name:
+            return Response({"error":"please send name"},status=status.HTTP_400_BAD_REQUEST)
+        if not product_topic_id :
+            return Response({"error":"please send product_topic_id"},status=status.HTTP_400_BAD_REQUEST)
+        if Shop.objects.filter(shop_admin=request.user.id).exists() is False:
+            return Response({"error":"you dont have shop"},status=status.HTTP_400_BAD_REQUEST)
+        shop_id=Shop.objects.get(shop_admin=request.user.id).id
+        product_data["shop"]=shop_id
+        if ProductTopic.objects.filter(id=product_topic_id).exists():
+            product_topic=ProductTopic.objects.get(id=product_topic_id)
+            product_data["product_topic"]=product_topic.id
+        else:
+            raise ValueError("product topic not found")
+        try:
+        
+            with transaction.atomic():
+                product_ser_data=CreateProductSerialiser(data=product_data)
+                if product_ser_data.is_valid():
+                    product=product_ser_data.save() 
+                else:
+                    raise ValueError(product_ser_data.errors)
+
+                ## handle product
+                if request.data.get("static_fields"):
+                    static_fields=json.loads(request.data["static_fields"])["static_fields"]
+                    for send_static_field in static_fields:      
+                        if send_static_field.get("field_id"):
+                            field_id=send_static_field["field_id"]
+                            if not StaticField.objects.filter(id=field_id).exists():
+                                raise ValueError("static field not found")
+                            static_field=StaticField.objects.get(id=field_id)
+                            if static_field.is_choosable is False:
+                                if send_static_field.get("field_value") is None:
+                                    raise ValueError(f"send field_value of {static_field.name}")
+                                else:
+                                    ProductStaticField.objects.create(
+                                        product=product,
+                                        field=static_field,
+                                        field_value=None,
+                                        value=send_static_field["field_value"]
+                                    )
+                            else:
+                                if send_static_field.get("field_value_id") is None:
+                                    raise ValueError(f"send field_value_id of {static_field.name}")
+                                else:
+                                    if FieldValue.objects.filter(id=send_static_field.get("field_value_id")).exists():
+                                        #! handle that product topic and field be same
+                                        field_value=FieldValue.objects.get(id=send_static_field.get("field_value_id"))
+                                        if field_value.static_field.id == static_field.id:
+                                            ProductStaticField.objects.create(
+                                                product=product,
+                                                field=static_field,
+                                                field_value=field_value,
+                                                value=None
+                                            )
+                                        else:
+                                            raise ValueError(f" in static fields product topic and field are not same")
+                                        
+                                    else:
+                                        raise ValueError(f'there is not any field value with id { send_static_field["field_value_id"] }')
+                print("!111111111111111111111111111111111111111111")
+                ## handle instance 
+                if request.data.get("instance") is None:
+                    raise ValueError("send at least one instance")
+                instances=json.loads(request.data["instance"])["instance"]
+                for instance in instances:   
+                    discount=0
+                    if instance.get("capacity") is None:
+                        raise ValueError('send capacity for all object')
+                    if instance.get("price") is None:
+                        raise ValueError('send price for all object')
+                    if instance.get("discount") is not None:
+                        if ((instance.get("discount")>100) or( instance.get("discount")<0)):
+                            raise ValueError("discount muset be in range 0 and 100")
+                        discount=instance.get("discount")
+                    instance_data={
+                        "product":product.id,
+                        "capacity":instance.get("capacity"),
+                        "price":instance.get("capacity"),
+                        "discount":discount
+                            }
+                    instance_ser_date=CreateProductInstanceSerialiser(data=instance_data)
+                    if instance_ser_date.is_valid():
+                        created_instance=instance_ser_date.save()
+                    else:   
+                        raise ValueError(instance_ser_date.errors)  
+
+                    print(instance)
+                    if instance.get("field_id"):
+                        field_id=instance["field_id"]
+                        if not StaticField.objects.filter(id=field_id).exists():
+                            raise ValueError("static field not found")
+                        static_field=StaticField.objects.get(id=field_id)
+                        if static_field.is_choosable is False:
+                            if instance.get("field_value") is None:
+                                raise ValueError(f"send field_value of {static_field.name}")
+                            else:
+                                ProductDynamicField.objects.create(
+                                    product_instance=created_instance,
+                                    field=static_field,
+                                    field_value=None,
+                                    value=instance["field_value"]
+                                )
+                        else:
+                            if instance.get("field_value_id") is None:
+                                raise ValueError(f"send field_value_id of {static_field.name}")
+                            else:
+                                if FieldValue.objects.filter(id=instance.get("field_value_id")).exists():
+                                    #! handle that product topic and field be same
+                                    field_value=FieldValue.objects.get(id=instance.get("field_value_id"))
+                                    if field_value.static_field.id == static_field.id:
+                                        ProductDynamicField.objects.create(
+                                            product_instance=created_instance,
+                                            field=static_field,
+                                            field_value=field_value,
+                                            value=None
+                                        )
+                                    else:
+                                        raise ValueError(f"in instance product topic and field are not same")
+                                    
+                                else:
+                                    raise ValueError(f'there is not any field value with id { instance["field_value_id"] }')
+                ## handle pictures
+                data=[]
+                index = 0
+                while f"picture[{index}]" in request.data:
+                    file_obj = request.data.get(f"picture[{index}]")
+                    if file_obj:
+                        data.append({
+                            "product":product.id,
+                            "product_pic":file_obj
+                        })
+                    index += 1
+                if len(data) != 0:
+                    picture_ser_data=CreateProductPictureSerialiser(data=data,many=True)
+                    if picture_ser_data.is_valid():
+                        picture_ser_data.save()
+                    else:
+                        raise ValueError(picture_ser_data.errors)
+
+                
+                return Response({"message":"product is created"},status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"error":str(e)},status=status.HTTP_400_BAD_REQUEST)
+        
+
+class ShopProductView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self,request):
+        if request.user.role.name != "shop_admin":
+            return Response({"error":"you can't do this"},status=status.HTTP_400_BAD_REQUEST)
+        if Shop.objects.filter(shop_admin=request.user.id).exists() is False:
+            return Response({"error":"you dont have shop"},status=status.HTTP_400_BAD_REQUEST) 
+        shop_id=Shop.objects.get(shop_admin=request.user.id).id
+        products=Product.objects.filter(shop=shop_id)
+        return Response(ProductSerialiser(instance=products,many=True).data,status=status.HTTP_200_OK)

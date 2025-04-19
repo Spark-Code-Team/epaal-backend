@@ -143,24 +143,15 @@ class StaticField(models.Model):
 
 
 
-class FiledValue(models.Model):
+class FieldValue(models.Model):
     value=models.CharField(max_length=250)
-    static_filed=models.ForeignKey(StaticField,on_delete=models.CASCADE,related_name="static_filed_value")
+    static_field=models.ForeignKey(StaticField,on_delete=models.CASCADE,related_name="static_filed_value")
     class Meta:
         verbose_name = 'field_value'
         verbose_name_plural = 'field_values'
         db_table = 'field_value'
 
 
-class ProductPicture(models.Model):
-    VALID_AVATAR_EXTENSION = ['png', 'jpg', 'jpeg']   
-    product_pic= models.ImageField(upload_to=product_image_directory_path,
-                               validators=[FileExtensionValidator(VALID_AVATAR_EXTENSION), validate_image_size],
-                               blank=True, null=True, max_length=1000)
-    class Meta:
-        verbose_name = 'product_picture'
-        verbose_name_plural = 'product_pictures'
-        db_table = 'product_picture'
 
 
 
@@ -174,11 +165,10 @@ class Product(models.Model):
     is_new=models.BooleanField(default=False)
     num_of_seen=models.IntegerField(default=0)
     is_confirm=models.BooleanField(default=False)
-    detail=models.CharField(max_length=500)
+    detail=models.CharField(max_length=500,null=True,blank=True)
     rate=models.IntegerField(default=0)
     num_of_rates=models.IntegerField(default=0)
     creator_id=models.ForeignKey(CustomUser,on_delete=models.CASCADE,related_name="creator_id")
-    product_picture=models.ManyToManyField(ProductPicture,null=True,blank=True)
     admin_confirm=models.BooleanField(default=False)
     report_message=models.CharField(max_length=500)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -189,6 +179,29 @@ class Product(models.Model):
         verbose_name_plural = 'products'
         db_table = 'product'
 
+class ProductPicture(models.Model):
+    VALID_AVATAR_EXTENSION = ['png', 'jpg', 'jpeg']   
+    product_pic= models.ImageField(upload_to=product_image_directory_path,
+                               validators=[FileExtensionValidator(VALID_AVATAR_EXTENSION), validate_image_size],
+                               blank=True, null=True, max_length=1000)
+    product=models.ForeignKey(Product,on_delete=models.CASCADE)
+    class Meta:
+        verbose_name = 'product_picture'
+        verbose_name_plural = 'product_pictures'
+        db_table = 'product_picture'
+
+    def save(self, *args, **kwargs):
+        if self.pk is None:
+            saved_image = self.product_pic
+            self.product_pic = None
+            super(ProductPicture, self).save(*args, **kwargs)
+            if saved_image:
+                self.product_pic = product_image_directory_path(self,saved_image)
+            else:
+                self.product_pic = None
+            self.save()
+        else:
+            super(ProductPicture, self).save(*args, **kwargs)
 
 class ProductInstance(models.Model):
     product=models.ForeignKey(Product,on_delete=models.CASCADE,related_name="product_instance")
@@ -204,8 +217,8 @@ class ProductInstance(models.Model):
 class ProductStaticField(models.Model):
     product=models.ForeignKey(Product,on_delete=models.CASCADE,related_name="product_static_field")
     field=models.ForeignKey(StaticField,on_delete=models.CASCADE,related_name="product_static_field")
-    field_value=models.ForeignKey(FiledValue,on_delete=models.CASCADE,related_name="product_static_field",null=True,blank=True)
-    value=models.CharField(max_length=250)
+    field_value=models.ForeignKey(FieldValue,on_delete=models.CASCADE,related_name="product_static_field",null=True,blank=True)
+    value=models.CharField(max_length=250,null=True,blank=True)
     class Meta:
         verbose_name = 'product_static_field'
         verbose_name_plural = 'product_static_fields'
@@ -214,8 +227,8 @@ class ProductStaticField(models.Model):
 class ProductDynamicField(models.Model):
     product_instance=models.ForeignKey(ProductInstance,on_delete=models.CASCADE,related_name="product_dynamic_field")
     field=models.ForeignKey(StaticField,on_delete=models.CASCADE,related_name="product_dynamic_field")
-    field_value=models.ForeignKey(FiledValue,on_delete=models.CASCADE,related_name="product_dynamic_field",null=True,blank=True)
-    value=models.CharField(max_length=250)
+    field_value=models.ForeignKey(FieldValue,on_delete=models.CASCADE,related_name="product_dynamic_field",null=True,blank=True)
+    value=models.CharField(max_length=250,null=True,blank=True)
     class Meta:
         verbose_name = 'product_dynamic_field'
         verbose_name_plural = 'product_dynamic_fields'

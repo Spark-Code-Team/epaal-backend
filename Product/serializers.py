@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from Admin.models import Shop
-from .models import ToplevelTopic,MidlevelTopic,ProductTopic,Product,LowlevelTopic,StaticField,ProductInstance
+from .models import ProductPicture, ToplevelTopic,MidlevelTopic,ProductTopic,Product,LowlevelTopic,StaticField,ProductInstance
 
 
 
@@ -207,3 +207,25 @@ class ProductInstanceSerialiser(serializers.ModelSerializer):
     class Meta:
         model=ProductInstance
         fields=("__all__")
+
+
+
+
+#############################################################
+
+class CreateProductSerialiser(serializers.ModelSerializer):
+
+
+    class Meta:
+        model=Product
+        fields=("name","shop","product_topic","detail","creator_id")
+
+class CreateProductPictureSerialiser(serializers.ModelSerializer):
+    class Meta:
+        model=ProductPicture
+        fields=("id","product","product_pic")
+class CreateProductInstanceSerialiser(serializers.ModelSerializer):
+    class Meta:
+        model=ProductInstance
+        fields=("__all__")
+
