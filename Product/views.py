@@ -3,7 +3,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
-from .serializers import All_ToplevelSerializer, CreateProductInstanceSerialiser, CreateProductPictureSerialiser, CreateProductSerialiser, ProductSerialiser,ToplevelTopicSerializer,MidlevelTopicSerializer,ProductTopicSerializer,LowlevelTopicSerializer,CreateFieldSerializer,GetFieldSerializer,Product
+from .serializers import All_ToplevelSerializer, ConfirmedProductSerialiser, CreateProductInstanceSerialiser, CreateProductPictureSerialiser, CreateProductSerialiser, NotConfirmedProductSerialiser, ProductSerialiser,ToplevelTopicSerializer,MidlevelTopicSerializer,ProductTopicSerializer,LowlevelTopicSerializer,CreateFieldSerializer,GetFieldSerializer,Product
 from .models import FieldValue, MidlevelTopic, ProductDynamicField, ProductInstance, ProductStaticField, ProductTopic, StaticField, ToplevelTopic , LowlevelTopic
 from rest_framework.parsers import MultiPartParser,FormParser
 from django.contrib.contenttypes.models import ContentType
@@ -500,8 +500,25 @@ class ShopProductView(APIView):
     def get(self,request):
         if request.user.role.name != "shop_admin":
             return Response({"error":"you can't do this"},status=status.HTTP_400_BAD_REQUEST)
+        
         if Shop.objects.filter(shop_admin=request.user.id).exists() is False:
             return Response({"error":"you dont have shop"},status=status.HTTP_400_BAD_REQUEST) 
         shop_id=Shop.objects.get(shop_admin=request.user.id).id
-        products=Product.objects.filter(shop=shop_id)
-        return Response(ProductSerialiser(instance=products,many=True).data,status=status.HTTP_200_OK)
+        
+        if request.data.get("is_comfirmed") is None:
+            return Response({"error":"please send is_comfirmed  "},status=status.HTTP_400_BAD_REQUEST) 
+        
+        if request.data["is_comfirmed"] not in [True,False]:
+            return Response({"error":"is_comfirmed   should be True or False"},status=status.HTTP_400_BAD_REQUEST)
+        
+        if request.data["is_comfirmed"] == True:
+            products=Product.objects.filter(shop=shop_id,is_confirm=True)
+            if len(products) == 0:
+                return Response({"error":"there is not any product"},status=status.HTTP_204_NO_CONTENT)
+            return Response (ConfirmedProductSerialiser(instance=products,many=True,context = {"request": request}).data,status=status.HTTP_200_OK)
+        else:
+            products=Product.objects.filter(shop=shop_id,is_confirm=False)
+            if len(products) == 0:
+                return Response({"error":"there is not any product"},status=status.HTTP_204_NO_CONTENT)
+            return Response (NotConfirmedProductSerialiser(instance=products,many=True,context = {"request": request}).data,status=status.HTTP_200_OK)
+

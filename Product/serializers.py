@@ -229,3 +229,38 @@ class CreateProductInstanceSerialiser(serializers.ModelSerializer):
         model=ProductInstance
         fields=("__all__")
 
+class ProductPictureSerialiser(serializers.ModelSerializer):
+    class Meta:
+        model=ProductPicture
+        fields=("id","product_pic")
+
+class ConfirmedProductSerialiser(serializers.ModelSerializer):
+    pircture=serializers.SerializerMethodField()
+    class Meta:
+        model=Product
+        fields=("id","name","created_at","pircture")
+
+    def get_pircture(self,obj):
+        if ProductPicture.objects.filter(product=obj.id).exists():
+            return ProductPictureSerialiser(instance=ProductPicture.objects.filter(product=obj.id).first(),context = {"request": self.context.get("request")}).data
+        else:
+            return None
+        
+class NotConfirmedProductSerialiser(serializers.ModelSerializer):
+    pircture=serializers.SerializerMethodField()
+    status=serializers.SerializerMethodField()
+    class Meta:
+        model=Product
+        fields=("id","name","created_at","pircture","report_message","status")
+
+    def get_pircture(self,obj):
+        if ProductPicture.objects.filter(product=obj.id).exists():
+            return ProductPictureSerialiser(instance=ProductPicture.objects.filter(product=obj.id).first(),context = {"request": self.context.get("request")}).data
+        else:
+            return None
+        
+    def get_status(self,obj):
+        if obj.report_message:
+            return "not_confirmed"
+        else:
+            return "unseen"
