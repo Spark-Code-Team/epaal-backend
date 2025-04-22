@@ -505,18 +505,18 @@ class ShopProductView(APIView):
             return Response({"error":"you dont have shop"},status=status.HTTP_400_BAD_REQUEST) 
         shop_id=Shop.objects.get(shop_admin=request.user.id).id
         
-        if request.data.get("is_comfirmed") is None:
+        if request.GET.get("is_comfirmed") is None:#! get params
             return Response({"error":"please send is_comfirmed  "},status=status.HTTP_400_BAD_REQUEST) 
         
-        if request.data["is_comfirmed"] not in [True,False]:
+        if request.GET["is_comfirmed"] not in ["false","true",False,True]:
             return Response({"error":"is_comfirmed   should be True or False"},status=status.HTTP_400_BAD_REQUEST)
         
-        if request.data["is_comfirmed"] == True:
+        if request.GET["is_comfirmed"] == True or request.GET["is_comfirmed"]=="true":
             products=Product.objects.filter(shop=shop_id,is_confirm=True)
             if len(products) == 0:
                 return Response({"error":"there is not any product"},status=status.HTTP_204_NO_CONTENT)
             return Response (ConfirmedProductSerialiser(instance=products,many=True,context = {"request": request}).data,status=status.HTTP_200_OK)
-        else:
+        elif request.GET["is_comfirmed"] == False or request.GET["is_comfirmed"]=="false":
             products=Product.objects.filter(shop=shop_id,is_confirm=False)
             if len(products) == 0:
                 return Response({"error":"there is not any product"},status=status.HTTP_204_NO_CONTENT)
