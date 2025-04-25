@@ -599,19 +599,3 @@ class SingleiInstallmentView(APIView):
             return Response({"error":"this installment is not yours"},status=status.HTTP_400_BAD_REQUEST)
         return Response({"data":UserInstallmentSerialiser(instance=installment).data},status=status.HTTP_200_OK)
     
-
-class PayInstallmentView(APIView):
-    permission_classes = [IsAuthenticated]
-    def post(self,request):
-        if not request.data.get("installment_id"):
-            return Response({"error":"please send installment_id"})
-        installment_id=request.data.get("installment_id")
-        installment=UserInstallment.objects.get(id=installment_id)
-        if installment.user_facility.user != request.user:
-            return Response({"error":"this installment is not yours"},status=status.HTTP_400_BAD_REQUEST)
-        if installment.is_paid or installment.status == "paid":
-            return Response({"error":"this installment paid before"},status=status.HTTP_400_BAD_REQUEST)
-        installment.is_paid=True
-        installment.status="paid"
-        installment.save()
-        return Response({"status":"done"},status=status.HTTP_200_OK)

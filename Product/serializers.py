@@ -325,3 +325,19 @@ class SingleProductserializer(serializers.ModelSerializer):
         if ProductPicture.objects.filter(product=obj.id).exists() is False:
             return None
         return ProductPictureSerialiser(ProductPicture.objects.filter(product=obj.id),many=True,context={"request":self.context.get("request")}).data
+
+class AllProductINstanceSerializer(serializers.ModelSerializer):
+    product_id=serializers.SerializerMethodField()
+    product_image=serializers.SerializerMethodField()
+    product_name=serializers.SerializerMethodField()
+    class Meta:
+        model=ProductInstance
+        fields=("id","product_id","product_image","product_name","price")
+
+    def get_product_id(self,obj):
+        return obj.product.id
+    
+    def get_product_image(self,obj):
+        return obj.product.name
+    def get_product_name(self,obj):
+        pass

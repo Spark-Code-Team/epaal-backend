@@ -319,19 +319,23 @@ class SingleProductTopic(APIView):
     def delete(self,request):
         pass
 
-class AllProductView(APIView):
+class AllProductInstanceView(APIView):
 
     def post(self,request):
         if request.data.get("toplevel_topic_id"):
-            filter_kwargs={"top_level"}
+            filter_kwargs={"product_topic__lowlevel_level__mid_level__top_level":request.data.get("toplevel_topic_id")}
+
         elif request.data.get("midlevel_topic_id"):
-            pass
+            filter_kwargs={"product_topic__lowlevel_level__mid_level":request.data.get("midlevel_topic_id")}
+
         elif request.data.get("lowlevel_topic_id"):
-            pass
+            filter_kwargs={"product_topic__lowlevel_level":request.data.get("lowlevel_topic_id")}
+
         elif request.data.get("product_topic_id"):
-            pass
+            filter_kwargs={"product_topic":request.data.get("product_topic_id")}
+
     
-        products=Product.objects.filter()
+        products=Product.objects.filter(**filter_kwargs)
         return Response(ProductSerialiser(instance=products,many=True).data,status=status.HTTP_200_OK)
     
 class SingleProductView(APIView):
