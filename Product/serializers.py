@@ -283,7 +283,7 @@ class SingleProductINstanceserializer(serializers.ModelSerializer):
     def get_dynamic_fields(self,obj):
         if ProductDynamicField.objects.filter(product_instance=obj.id).exists() is False:
             return None
-        return ProductDynamicFieldSerialier(instance=ProductDynamicField.objects.filter(product_instance=obj),many=True)
+        return ProductDynamicFieldSerialier(instance=ProductDynamicField.objects.filter(product_instance=obj.id),many=True).data
 
 class ProductStaticFieldSerializer(serializers.ModelSerializer):
 
@@ -302,14 +302,14 @@ class SingleProductserializer(serializers.ModelSerializer):
         fields=("id","name","shop","detail","rate","static_fileds","instances")
 
     def get_static_fileds(self,obj):
-        if ProductStaticField.objects.filter(id=obj.id).exists() is False:
+        if ProductStaticField.objects.filter(product=obj.id).exists() is False:
             return None
         else:
-            return ProductStaticFieldSerializer(ProductInstance.objects.filter(id=obj.id),many=True)        
+            return ProductStaticFieldSerializer(ProductStaticField.objects.filter(product=obj.id),many=True).data
 
 
     def get_instances(self,obj):
-        if ProductInstance.objects.filter(id=obj.id).exists() is False:
+        if ProductInstance.objects.filter(product=obj.id).exists() is False:
             return None
         else:
-            return SingleProductINstanceserializer(ProductInstance.objects.filter(id=obj.id),many=True)
+            return SingleProductINstanceserializer(ProductInstance.objects.filter(product=obj.id),many=True).data

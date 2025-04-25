@@ -3,7 +3,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
-from .serializers import All_ToplevelSerializer, ConfirmedProductSerialiser, CreateProductInstanceSerialiser, CreateProductPictureSerialiser, CreateProductSerialiser, NotConfirmedProductSerialiser, ProductSerialiser,ToplevelTopicSerializer,MidlevelTopicSerializer,ProductTopicSerializer,LowlevelTopicSerializer,CreateFieldSerializer,GetFieldSerializer,Product
+from .serializers import All_ToplevelSerializer, ConfirmedProductSerialiser, CreateProductInstanceSerialiser, CreateProductPictureSerialiser, CreateProductSerialiser, NotConfirmedProductSerialiser, ProductSerialiser, SingleProductserializer,ToplevelTopicSerializer,MidlevelTopicSerializer,ProductTopicSerializer,LowlevelTopicSerializer,CreateFieldSerializer,GetFieldSerializer,Product
 from .models import FieldValue, MidlevelTopic, ProductDynamicField, ProductInstance, ProductStaticField, ProductTopic, StaticField, ToplevelTopic , LowlevelTopic
 from rest_framework.parsers import MultiPartParser,FormParser
 from django.contrib.contenttypes.models import ContentType
@@ -324,6 +324,7 @@ class AllProductView(APIView):
     def post(self,request):
         products=Product.objects.filter()
         return Response(ProductSerialiser(instance=products,many=True).data,status=status.HTTP_200_OK)
+    
 class SingleProductView(APIView):
 
     def post(self,request):
@@ -331,7 +332,7 @@ class SingleProductView(APIView):
         if not product_id:
             return Response({"error":"send product_id"},status=status.HTTP_400_BAD_REQUEST)
         if Product.objects.filter(id=product_id).exists():
-            return Response({"data":ProductSerialiser(instance=Product.objects.get(id=product_id)).data},status=status.HTTP_200_OK) 
+            return Response({"data":SingleProductserializer(instance=Product.objects.get(id=product_id)).data},status=status.HTTP_200_OK) 
         else:
             return Response({"error":"product with this  product_id is not found"},status=status.HTTP_400_BAD_REQUEST)
 

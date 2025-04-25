@@ -25,7 +25,7 @@ urlpatterns = [
     path("single_lowlevel_topic", SingleLowlevelTopic.as_view(), name="single_lowlevel_topic"),##api_coed:get 114
     path("single_product_topic", SingleProductTopic.as_view(), name="single_product_topic"),##api_coed:get 115
     path("get_all_product", AllProductView.as_view(), name="get_all_product"),
-    path("get_single_product", SingleProductView.as_view(), name="get_all_product"),
+    path("get_single_product", SingleProductView.as_view(), name="get_single_product"),
     path("create_product", CreateProductView.as_view(), name="create_product"),
     path("shop_product", ShopProductView.as_view(), name="shop_product"),
 

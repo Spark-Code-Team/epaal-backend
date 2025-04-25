@@ -47,7 +47,7 @@ class UserInstallmentSerialiser(serializers.ModelSerializer):
 
     class Meta:
         model=UserInstallment
-        fields=("id","is_paid","status","installment_number","paid_date","created_at")
+        fields=("id","is_paid","status","installment_number","paid_date","created_at","amount","final_amount")
 
 
 class FacilityUserSideSerializer(serializers.ModelSerializer):
