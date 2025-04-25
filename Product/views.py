@@ -505,7 +505,7 @@ class ShopProductView(APIView):
             return Response({"error":"you dont have shop"},status=status.HTTP_400_BAD_REQUEST) 
         shop_id=Shop.objects.get(shop_admin=request.user.id).id
         
-        if request.GET.get("is_comfirmed") is None:#! get params
+        if request.GET.get("is_comfirmed") is None:
             return Response({"error":"please send is_comfirmed  "},status=status.HTTP_400_BAD_REQUEST) 
         
         if request.GET["is_comfirmed"] not in ["false","true",False,True]:

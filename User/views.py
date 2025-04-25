@@ -1,7 +1,7 @@
 
 import requests
 from Bank.models import UserFacility,UserInstallment
-from Bank.serializers import FacilityUseerSerialiser, UserInstallmentSerialiser
+from Bank.serializers import CancledFacilityUseerSerialiser, DoneFacilityUseerSerialiser, FacilityUseerSerialiser, InstallmentFacilityUseerSerialiser, UserInstallmentSerialiser
 from Product.serializers import ProductInstanceSerialiser, ProductSerialiser
 from Product.models import Product, ProductInstance
 from Order.models import Cart
@@ -87,18 +87,19 @@ class LoginView(APIView):
     def post(self, request, *args, **kwargs):
         if request.data.get("phone_number") is None:
             return Response({"error":"send phone_number"},status=status.HTTP_400_BAD_REQUEST)
-        if not self.validate_phone_number(request.data["phone_number"]):
+        phone_number=request.data["phone_number"]
+        if not self.validate_phone_number(phone_number):
             return Response({"error":"phone number format is not valid"},status=status.HTTP_400_BAD_REQUEST)
         if request.data.get("otp_code") is None:
             return Response({"error":"send otp code"},status=status.HTTP_400_BAD_REQUEST)
-        if not OTP.objects.filter(phone_number=request.data["phone_number"],otp_for="login").exists():
+        if not OTP.objects.filter(phone_number=phone_number,otp_for="login").exists():
             return Response({"error":"first make an otp code for yourself"},status=status.HTTP_400_BAD_REQUEST)
-        otp=OTP.objects.get(phone_number=request.data["phone_number"],otp_for="login")
+        otp=OTP.objects.get(phone_number=phone_number,otp_for="login")
         if timezone.now()>otp.otp_expire:
             return Response({"error":"time of otp is expired"},status=status.HTTP_400_BAD_REQUEST)
         if otp.otp_code==request.data["otp_code"]:
-            if CustomUser.objects.filter(phone_number=request.data["phone_number"]).exists():
-                user=CustomUser.objects.get(phone_number=request.data["phone_number"])
+            if CustomUser.objects.filter(phone_number=phone_number).exists():
+                user=CustomUser.objects.get(phone_number=phone_number)
                 if user.has_two_factor:
                     if request.data.get("password") is None:
                         return Response({"two_factor":True,'refresh':None,'access':None},status=status.HTTP_406_NOT_ACCEPTABLE)
@@ -401,7 +402,7 @@ class MyFacilityView(APIView):
         installment_instance=UserFacility.objects.filter(user=request.user,status="installment")
         done_instance=UserFacility.objects.filter(user=request.user,status="done")
         if cancled_instance:
-            cancled_ser_data=FacilityUseerSerialiser(instance=cancled_instance,many=True).data
+            cancled_ser_data=CancledFacilityUseerSerialiser(instance=cancled_instance,many=True).data
         else:
             cancled_ser_data=None
         if in_progress_instance:
@@ -410,12 +411,12 @@ class MyFacilityView(APIView):
             in_progress_ser_data = None
 
         if installment_instance:
-            installment_ser_data = FacilityUseerSerialiser(instance=installment_instance, many=True).data
+            installment_ser_data = InstallmentFacilityUseerSerialiser(instance=installment_instance, many=True).data
         else:
             installment_ser_data = None
 
         if done_instance:
-            done_ser_data = FacilityUseerSerialiser(instance=done_instance, many=True).data
+            done_ser_data = DoneFacilityUseerSerialiser(instance=done_instance, many=True).data
         else:
             done_ser_data = None
 

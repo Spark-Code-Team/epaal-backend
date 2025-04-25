@@ -85,7 +85,7 @@ class UserFacility(models.Model):
         verbose_name_plural = 'user_facilities'
         db_table = 'user_facility'
 
-
+ 
 class UserDocumetn(models.Model):
     user_facility=models.ForeignKey(UserFacility,on_delete=models.CASCADE,related_name="user_facility_id_user_document")
     document=models.ForeignKey(FacilityDocument,on_delete=models.CASCADE,related_name="facility_document_id_user_document")
