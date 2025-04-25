@@ -437,40 +437,44 @@ class CreateProductView(APIView):
                         raise ValueError(instance_ser_date.errors)  
 
                     print(instance)
-                    if instance.get("field_id"):
-                        field_id=instance["field_id"]
-                        if not StaticField.objects.filter(id=field_id).exists():
-                            raise ValueError("static field not found")
-                        static_field=StaticField.objects.get(id=field_id)
-                        if static_field.is_choosable is False:
-                            if instance.get("field_value") is None:
-                                raise ValueError(f"send field_value of {static_field.name}")
-                            else:
-                                ProductDynamicField.objects.create(
-                                    product_instance=created_instance,
-                                    field=static_field,
-                                    field_value=None,
-                                    value=instance["field_value"]
-                                )
-                        else:
-                            if instance.get("field_value_id") is None:
-                                raise ValueError(f"send field_value_id of {static_field.name}")
-                            else:
-                                if FieldValue.objects.filter(id=instance.get("field_value_id")).exists():
-                                    #! handle that product topic and field be same
-                                    field_value=FieldValue.objects.get(id=instance.get("field_value_id"))
-                                    if field_value.static_field.id == static_field.id:
+                    
+                    dynamic_fields=instance.get("dynamic_fields")
+                    if dynamic_fields:
+                        for dynamic_field in dynamic_fields:
+                            if dynamic_field.get("field_id"):
+                                field_id=dynamic_field["field_id"]
+                                if not StaticField.objects.filter(id=field_id).exists():
+                                    raise ValueError("static field not found")
+                                static_field=StaticField.objects.get(id=field_id)
+                                if static_field.is_choosable is False:
+                                    if dynamic_field.get("field_value") is None:
+                                        raise ValueError(f"send field_value of {static_field.name}")
+                                    else:
                                         ProductDynamicField.objects.create(
                                             product_instance=created_instance,
                                             field=static_field,
-                                            field_value=field_value,
-                                            value=None
+                                            field_value=None,
+                                            value=dynamic_field["field_value"]
                                         )
-                                    else:
-                                        raise ValueError(f"in instance product topic and field are not same")
-                                    
                                 else:
-                                    raise ValueError(f'there is not any field value with id { instance["field_value_id"] }')
+                                    if dynamic_field.get("field_value_id") is None:
+                                        raise ValueError(f"send field_value_id of {static_field.name}")
+                                    else:
+                                        if FieldValue.objects.filter(id=dynamic_field.get("field_value_id")).exists():
+                                            #! handle that product topic and field be same
+                                            field_value=FieldValue.objects.get(id=dynamic_field.get("field_value_id"))
+                                            if field_value.static_field.id == static_field.id:
+                                                ProductDynamicField.objects.create(
+                                                    product_instance=created_instance,
+                                                    field=static_field,
+                                                    field_value=field_value,
+                                                    value=None
+                                                )
+                                            else:
+                                                raise ValueError(f"in dynamic_field product topic and field are not same")
+                                            
+                                        else:
+                                            raise ValueError(f'there is not any field value with id { dynamic_field["field_value_id"] }')
                 ## handle pictures
                 data=[]
                 index = 0

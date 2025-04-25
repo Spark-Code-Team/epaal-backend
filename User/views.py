@@ -585,3 +585,16 @@ class GetCartCostView(APIView):
             all_cost+=self.final_cost(product.price,product.discount)
 
         return Response({"all_products_cost":all_cost},status=status.HTTP_200_OK)
+
+
+class SingleiInstallmentView(APIView):
+
+    permission_classes = [IsAuthenticated]
+    def post(self,request):
+        if not request.data.get("installment_id"):
+            return Response({"error":"please send installment_id"})
+        installment_id=request.data.get("installment_id")
+        installment=UserInstallment.objects.get(id=installment_id)
+        if installment.user_facility.user != request.user:
+            return Response({"error":"this installment is not yours"},status=status.HTTP_400_BAD_REQUEST)
+        return Response({"data":UserInstallmentSerialiser(instance=installment).data},status=status.HTTP_200_OK)
