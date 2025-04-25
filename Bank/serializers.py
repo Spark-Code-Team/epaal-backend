@@ -35,14 +35,6 @@ class UserDocumentSerializer(serializers.ModelSerializer):
         fields = ("__all__")
 
 
-class FacilityUseerSerialiser(serializers.ModelSerializer):
-    user_name=serializers.SerializerMethodField()
-    class Meta:
-        model = UserFacility
-        fields = ("id","user_name","status","level","level_number","given_value","created_at","facility")
-
-    def get_user_name(self,obj):
-        return f'{obj.user.first_name} {obj.user.last_name}'
 
 class GetUserDocumentSerializer(serializers.ModelSerializer):
     document=FacilityDocumentSerializer()
@@ -102,6 +94,15 @@ class InstallmentFacilityUseerSerialiser(serializers.ModelSerializer):
         def get_price_of_every_installment(self,obj):
             return UserInstallment.objects.filter(user_facility=obj.id,is_paid=False).last().amount
 
+class FacilityUseerSerialiser(serializers.ModelSerializer):
+    user_name=serializers.SerializerMethodField()
+    facility=FacilityUserSideSerializer()
+    class Meta:
+        model = UserFacility
+        fields = ("id","user_name","status","level","level_number","given_value","created_at","facility")
+
+    def get_user_name(self,obj):
+        return f'{obj.user.first_name} {obj.user.last_name}'
 
 class DoneFacilityUseerSerialiser(serializers.ModelSerializer):
 

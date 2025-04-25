@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from Admin.models import Shop
-from .models import ProductPicture, ToplevelTopic,MidlevelTopic,ProductTopic,Product,LowlevelTopic,StaticField,ProductInstance
+from .models import ProductDynamicField, ProductPicture, ProductStaticField, ToplevelTopic,MidlevelTopic,ProductTopic,Product,LowlevelTopic,StaticField,ProductInstance
 
 
 
@@ -264,10 +264,52 @@ class NotConfirmedProductSerialiser(serializers.ModelSerializer):
             return "not_confirmed"
         else:
             return "unseen"
-        
+
+
+
+class ProductDynamicFieldSerialier(serializers.ModelSerializer):
+
+    class Meta:
+        model=ProductDynamicField
+        fields=("field","field_value","value")
+        depth=1
+
+class SingleProductINstanceserializer(serializers.ModelSerializer):
+    dynamic_fields=serializers.SerializerMethodField()
+    class Meta:
+        model=ProductInstance
+        fields=("id","price","discount","capacity","dynamic_fields")
+
+    def get_dynamic_fields(self,obj):
+        if ProductDynamicField.objects.filter(product_instance=obj.id).exists() is False:
+            return None
+        return ProductDynamicFieldSerialier(instance=ProductDynamicField.objects.filter(product_instance=obj),many=True)
+
+class ProductStaticFieldSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model=ProductStaticField
+        fields=("field","field_value","value")
+        depth=1
 
 class SingleProductserializer(serializers.ModelSerializer):
+    static_fileds=serializers.SerializerMethodField()
+    instances=serializers.SerializerMethodField()
+
 
     class Meta:
         model=Product
-        fields=("__all__")
+        fields=("id","name","shop","detail","rate","static_fileds","instances")
+
+    def get_static_fileds(self,obj):
+        if ProductStaticField.objects.filter(id=obj.id).exists() is False:
+            return None
+        else:
+            return ProductStaticFieldSerializer(ProductInstance.objects.filter(id=obj.id),many=True)        
+
+
+    def get_instances(self,obj):
+        if ProductInstance.objects.filter(id=obj.id).exists() is False:
+            return None
+        else:
+            return SingleProductINstanceserializer(ProductInstance.objects.filter(id=obj.id),many=True)
