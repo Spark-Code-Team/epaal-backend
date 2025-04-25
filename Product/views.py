@@ -322,6 +322,15 @@ class SingleProductTopic(APIView):
 class AllProductView(APIView):
 
     def post(self,request):
+        if request.data.get("toplevel_topic_id"):
+            filter_kwargs={"top_level"}
+        elif request.data.get("midlevel_topic_id"):
+            pass
+        elif request.data.get("lowlevel_topic_id"):
+            pass
+        elif request.data.get("product_topic_id"):
+            pass
+    
         products=Product.objects.filter()
         return Response(ProductSerialiser(instance=products,many=True).data,status=status.HTTP_200_OK)
     
