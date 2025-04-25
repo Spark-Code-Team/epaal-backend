@@ -128,6 +128,11 @@ class ShopSerialiser(serializers.ModelSerializer):
     class Meta:
         model=Shop
         fields=("__all__")
+class ShopForUserPanelSerialiser(serializers.ModelSerializer):
+
+    class Meta:
+        model=Shop
+        fields=("id","shop_name")
 
 class LowlevelTopicSerialiser(serializers.ModelSerializer):
     class Meta:
@@ -292,14 +297,16 @@ class ProductStaticFieldSerializer(serializers.ModelSerializer):
         fields=("field","field_value","value")
         depth=1
 
+
 class SingleProductserializer(serializers.ModelSerializer):
     static_fileds=serializers.SerializerMethodField()
     instances=serializers.SerializerMethodField()
-
+    shop=ShopForUserPanelSerialiser()
+    iamges=serializers.SerializerMethodField()
 
     class Meta:
         model=Product
-        fields=("id","name","shop","detail","rate","static_fileds","instances")
+        fields=("id","name","shop","detail","rate","static_fileds","instances","iamges")
 
     def get_static_fileds(self,obj):
         if ProductStaticField.objects.filter(product=obj.id).exists() is False:
@@ -313,3 +320,8 @@ class SingleProductserializer(serializers.ModelSerializer):
             return None
         else:
             return SingleProductINstanceserializer(ProductInstance.objects.filter(product=obj.id),many=True).data
+        
+    def get_iamges(self,obj):
+        if ProductPicture.objects.filter(product=obj.id).exists() is False:
+            return None
+        return ProductPictureSerialiser(ProductPicture.objects.filter(product=obj.id),many=True,context={"request":self.context.get("request")}).data
