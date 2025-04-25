@@ -3,7 +3,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
-from .serializers import All_ToplevelSerializer, ConfirmedProductSerialiser, CreateProductInstanceSerialiser, CreateProductPictureSerialiser, CreateProductSerialiser, NotConfirmedProductSerialiser, ProductSerialiser, SingleProductserializer,ToplevelTopicSerializer,MidlevelTopicSerializer,ProductTopicSerializer,LowlevelTopicSerializer,CreateFieldSerializer,GetFieldSerializer,Product
+from .serializers import All_ToplevelSerializer, AllProductInstanceSerializer, ConfirmedProductSerialiser, CreateProductInstanceSerialiser, CreateProductPictureSerialiser, CreateProductSerialiser, NotConfirmedProductSerialiser, ProductSerialiser, SingleProductserializer,ToplevelTopicSerializer,MidlevelTopicSerializer,ProductTopicSerializer,LowlevelTopicSerializer,CreateFieldSerializer,GetFieldSerializer,Product
 from .models import FieldValue, MidlevelTopic, ProductDynamicField, ProductInstance, ProductStaticField, ProductTopic, StaticField, ToplevelTopic , LowlevelTopic
 from rest_framework.parsers import MultiPartParser,FormParser
 from django.contrib.contenttypes.models import ContentType
@@ -322,21 +322,22 @@ class SingleProductTopic(APIView):
 class AllProductInstanceView(APIView):
 
     def post(self,request):
+        filter_kwargs={}
         if request.data.get("toplevel_topic_id"):
-            filter_kwargs={"product_topic__lowlevel_level__mid_level__top_level":request.data.get("toplevel_topic_id")}
+            filter_kwargs={"product__product_topic__lowlevel_level__mid_level__top_level":request.data.get("toplevel_topic_id")}
 
         elif request.data.get("midlevel_topic_id"):
-            filter_kwargs={"product_topic__lowlevel_level__mid_level":request.data.get("midlevel_topic_id")}
+            filter_kwargs={"product__product_topic__lowlevel_level__mid_level":request.data.get("midlevel_topic_id")}
 
         elif request.data.get("lowlevel_topic_id"):
-            filter_kwargs={"product_topic__lowlevel_level":request.data.get("lowlevel_topic_id")}
+            filter_kwargs={"product__product_topic__lowlevel_level":request.data.get("lowlevel_topic_id")}
 
         elif request.data.get("product_topic_id"):
-            filter_kwargs={"product_topic":request.data.get("product_topic_id")}
+            filter_kwargs={"product__product_topic":request.data.get("product_topic_id")}
 
     
-        products=Product.objects.filter(**filter_kwargs)
-        return Response(ProductSerialiser(instance=products,many=True).data,status=status.HTTP_200_OK)
+        products=ProductInstance.objects.filter(**filter_kwargs)
+        return Response(AllProductInstanceSerializer(instance=products,many=True,context={"request":request}).data,status=status.HTTP_200_OK)
     
 class SingleProductView(APIView):
 

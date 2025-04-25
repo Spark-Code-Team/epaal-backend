@@ -326,7 +326,7 @@ class SingleProductserializer(serializers.ModelSerializer):
             return None
         return ProductPictureSerialiser(ProductPicture.objects.filter(product=obj.id),many=True,context={"request":self.context.get("request")}).data
 
-class AllProductINstanceSerializer(serializers.ModelSerializer):
+class AllProductInstanceSerializer(serializers.ModelSerializer):
     product_id=serializers.SerializerMethodField()
     product_image=serializers.SerializerMethodField()
     product_name=serializers.SerializerMethodField()
@@ -338,6 +338,7 @@ class AllProductINstanceSerializer(serializers.ModelSerializer):
         return obj.product.id
     
     def get_product_image(self,obj):
-        return obj.product.name
+        return ProductPictureSerialiser(ProductPicture.objects.filter(product=obj.product).first(),context={"request":self.context.get("request")}).data
+    
     def get_product_name(self,obj):
-        pass
+        return obj.product.name
