@@ -85,6 +85,11 @@ class CreateFieldSerializer(serializers.ModelSerializer):
     class Meta:
         model = StaticField
         fields = ("id","name",'is_filter','is_choosable','topic_level','object_id')
+        
+class GetFieldForCreateProductSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = StaticField
+        fields = ("id","name",'is_filter','is_choosable',)
 
 
 class GetFieldSerializer(serializers.ModelSerializer):
@@ -342,3 +347,4 @@ class AllProductInstanceSerializer(serializers.ModelSerializer):
     
     def get_product_name(self,obj):
         return obj.product.name
+

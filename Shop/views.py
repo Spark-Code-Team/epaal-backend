@@ -3,8 +3,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
-from Product.models import ToplevelTopic, MidlevelTopic, LowlevelTopic, ProductTopic
-from Product.serializers import ToplevelTopicSerializer, MidlevelTopicSerializer, LowlevelTopicSerializer, ProductTopicSerializer
+from Product.models import StaticField, ToplevelTopic, MidlevelTopic, LowlevelTopic, ProductTopic
+from Product.serializers import GetFieldForCreateProductSerializer, GetFieldSerializer, ToplevelTopicSerializer, MidlevelTopicSerializer, LowlevelTopicSerializer, ProductTopicSerializer
 # Create your views here.
 
 class GetToplevelTopicView(APIView):
@@ -69,3 +69,31 @@ class GetProductTopicView(APIView):
             return Response({"message":"No product topic found"},status=status.HTTP_404_NOT_FOUND)
         ser_data=ProductTopicSerializer(instance=product_topic, many=True)
         return Response(ser_data.data,status=status.HTTP_200_OK)
+
+
+class GetFieldsForCreateProductView(APIView):
+
+    def post(self,request):
+        if request.user.role.name!="shop_admin":
+            return Response({"message":"You can not access this url"},status=status.HTTP_403_FORBIDDEN)
+        
+        if not request.data.get("prouduct_topic_id"):
+            return Response({"error":"send prouduct_topic_id"},status=status.HTTP_400_BAD_REQUEST)
+        
+        prouduct_topic=ProductTopic.objects.get(id=request.data.get("prouduct_topic_id"))
+        lowlevel_topic=prouduct_topic.lowlevel_topic
+        midlevel_topic=lowlevel_topic.midlevel_topic
+        toplevel_topic=midlevel_topic.toplevel_topic
+        from itertools import chain
+
+        fields = chain(
+            StaticField.objects.filter(topic_level=1, object_id=toplevel_topic.id),
+            StaticField.objects.filter(topic_level=2, object_id=midlevel_topic.id),
+            StaticField.objects.filter(topic_level=3, object_id=lowlevel_topic.id),
+            StaticField.objects.filter(topic_level=4, object_id=prouduct_topic.id),
+        )
+        fields = list(fields)  # Convert chain object to list for serialization
+        if not fields:
+            return Response({"error":"there is not any fields"},status=status.HTTP_204_NO_CONTENT)
+        return Response({"data":GetFieldForCreateProductSerializer(instance=fields, many=True).data})
+    
