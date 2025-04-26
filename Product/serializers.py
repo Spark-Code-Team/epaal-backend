@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from Admin.models import Shop
-from .models import ProductDynamicField, ProductPicture, ProductStaticField, ToplevelTopic,MidlevelTopic,ProductTopic,Product,LowlevelTopic,StaticField,ProductInstance
+from .models import ProductDynamicField, ProductPicture, ProductStaticField, ToplevelTopic,MidlevelTopic,ProductTopic,Product,LowlevelTopic,StaticField,ProductInstance,FieldValue
 
 
 
@@ -85,11 +85,26 @@ class CreateFieldSerializer(serializers.ModelSerializer):
     class Meta:
         model = StaticField
         fields = ("id","name",'is_filter','is_choosable','topic_level','object_id')
+class FieldValueSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=FieldValue
+        fields=("id","value")  
         
 class GetFieldForCreateProductSerializer(serializers.ModelSerializer):
+    options=serializers.SerializerMethodField()
     class Meta:
         model = StaticField
-        fields = ("id","name",'is_filter','is_choosable',)
+        fields = ("id","name",'is_filter','is_choosable',"options",)
+    
+    def get_options(self,obj):
+        if obj.is_choosable:
+            if FieldValue.objects.filter(static_field=obj.id).exists():
+                return FieldValueSerializer(instance=FieldValue.objects.filter(static_field=obj.id),many=True).data
+            else:
+                return []
+        else:
+            None
+
 
 
 class GetFieldSerializer(serializers.ModelSerializer):

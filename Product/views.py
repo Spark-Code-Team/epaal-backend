@@ -423,7 +423,6 @@ class CreateProductView(APIView):
                                         
                                     else:
                                         raise ValueError(f'there is not any field value with id { send_static_field["field_value_id"] }')
-                print("!111111111111111111111111111111111111111111")
                 ## handle instance 
                 if request.data.get("instance") is None:
                     raise ValueError("send at least one instance")
@@ -450,7 +449,6 @@ class CreateProductView(APIView):
                     else:   
                         raise ValueError(instance_ser_date.errors)  
 
-                    print(instance)
                     
                     dynamic_fields=instance.get("dynamic_fields")
                     if dynamic_fields:
