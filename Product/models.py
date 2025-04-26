@@ -196,21 +196,20 @@ class ProductPicture(models.Model):
         verbose_name_plural = 'product_pictures'
         db_table = 'product_picture'
 
-def save(self, *args, **kwargs):
-    if self.pk is None:
-        saved_image = self.product_pic
-        self.product_pic = None
-        super(ProductPicture, self).save(*args, **kwargs)
-        if saved_image:
-            # Generate the path
-            path = product_image_directory_path(self, saved_image.name)
-            # Save the actual file content to the storage
-            default_storage.save(path, ContentFile(saved_image.read()))
-            # Update the model field with the path
-            self.product_pic.name = path
+    def save(self, *args, **kwargs):
+        if self.pk is None:
+            saved_image = self.product_pic
+            self.product_pic = None
+            super(ProductPicture, self).save(*args, **kwargs)
+            if saved_image:
+                path=product_image_directory_path(self,saved_image)
+                default_storage.save(path, ContentFile(saved_image.read()))
+                self.product_pic = path
+            else:
+                self.product_pic = None
             self.save()
-    else:
-        super(ProductPicture, self).save(*args, **kwargs)
+        else:
+            super(ProductPicture, self).save(*args, **kwargs) 
 
 
 
