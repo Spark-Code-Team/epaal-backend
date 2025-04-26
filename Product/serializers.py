@@ -318,15 +318,45 @@ class ProductStaticFieldSerializer(serializers.ModelSerializer):
         depth=1
 
 
+class SingleProductTopicSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model=ProductTopic
+        fields=("id","name","picture")
+
+class SingleLowlevelTopicSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model=LowlevelTopic
+        fields=("id","name","picture")
+
+class SingleMidlevelTopicSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model=MidlevelTopic
+        fields=("id","name","picture")
+
+class SingleToplevelTopicSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model=ToplevelTopic
+        fields=("id","name","picture")
+
 class SingleProductserializer(serializers.ModelSerializer):
     static_fileds=serializers.SerializerMethodField()
     instances=serializers.SerializerMethodField()
     shop=ShopForUserPanelSerialiser()
     iamges=serializers.SerializerMethodField()
+    product_topic=SingleProductTopicSerializer()
+    lowlevel_topic=serializers.SerializerMethodField()
+    midlevel_topic=serializers.SerializerMethodField()
+    toplevel_topic=serializers.SerializerMethodField()
+
+    
 
     class Meta:
         model=Product
-        fields=("id","name","shop","detail","rate","static_fileds","instances","iamges")
+        fields=("id","name","shop","detail","rate","static_fileds","instances","iamges","product_topic","lowlevel_topic","midlevel_topic","toplevel_topic")
 
     def get_static_fileds(self,obj):
         if ProductStaticField.objects.filter(product=obj.id).exists() is False:
@@ -345,6 +375,17 @@ class SingleProductserializer(serializers.ModelSerializer):
         if ProductPicture.objects.filter(product=obj.id).exists() is False:
             return None
         return ProductPictureSerialiser(ProductPicture.objects.filter(product=obj.id),many=True,context={"request":self.context.get("request")}).data
+
+    def get_lowlevel_topic(self,obj):
+        return SingleLowlevelTopicSerializer(obj.product_topic.lowlevel_topic).data
+    
+    def get_midlevel_topic(self,obj):
+        return SingleMidlevelTopicSerializer(obj.product_topic.lowlevel_topic.midlevel_topic).data
+    
+    def get_toplevel_topic(self,obj):
+        return SingleToplevelTopicSerializer(obj.product_topic.lowlevel_topic.midlevel_topic.toplevel_topic).data
+    
+
 
 class AllProductInstanceSerializer(serializers.ModelSerializer):
     product_id=serializers.SerializerMethodField()
