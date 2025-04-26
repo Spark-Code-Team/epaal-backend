@@ -6,6 +6,8 @@ from django.core.validators import ValidationError, FileExtensionValidator
 from User.models import CustomUser
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
+from django.core.files.storage import default_storage
+from django.core.files.base import ContentFile
 # Create your models here.
 
 
@@ -16,13 +18,17 @@ def validate_image_size(image):
         raise ValidationError('Max image size should be '.format((filesizeformat(settings.MAX_UPLOAD_IMAGE_SIZE))))
     
 def product_image_directory_path(instance, filename):
-    return 'Media/product/{0}/pictures/{1}'.format(str(instance.id), filename) 
+    return 'product/{0}/pictures/{1}'.format(str(instance.id), filename) 
+
 def toplevel_topic_image_directory_path(instance, filename):
     return 'Media/toplevel_field/{0}/pictures/{1}'.format(str(instance.id), filename) 
+
 def midlevel_topic_image_directory_path(instance, filename):
     return 'Media/midlevel_field/{0}/pictures/{1}'.format(str(instance.id), filename) 
+
 def lowlevel_topic_image_directory_path(instance, filename):
     return 'Media/lowlevel_field/{0}/pictures/{1}'.format(str(instance.id), filename) 
+
 def product_topic_image_directory_path(instance, filename):
     return 'Media/product_field/{0}/pictures/{1}'.format(str(instance.id), filename) 
 
@@ -190,18 +196,21 @@ class ProductPicture(models.Model):
         verbose_name_plural = 'product_pictures'
         db_table = 'product_picture'
 
-    def save(self, *args, **kwargs):
-        if self.pk is None:
-            saved_image = self.product_pic
-            self.product_pic = None
-            super(ProductPicture, self).save(*args, **kwargs)
-            if saved_image:
-                self.product_pic = product_image_directory_path(self,saved_image)
-            else:
-                self.product_pic = None
+def save(self, *args, **kwargs):
+    if self.pk is None:
+        saved_image = self.product_pic
+        self.product_pic = None
+        super(ProductPicture, self).save(*args, **kwargs)
+        if saved_image:
+            # Generate the path
+            path = product_image_directory_path(self, saved_image.name)
+            # Save the actual file content to the storage
+            default_storage.save(path, ContentFile(saved_image.read()))
+            # Update the model field with the path
+            self.product_pic.name = path
             self.save()
-        else:
-            super(ProductPicture, self).save(*args, **kwargs)
+    else:
+        super(ProductPicture, self).save(*args, **kwargs)
 
 class ProductInstance(models.Model):
     product=models.ForeignKey(Product,on_delete=models.CASCADE,related_name="product_instance")

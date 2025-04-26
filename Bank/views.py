@@ -60,27 +60,27 @@ class CreateFacilityView(APIView):
         if int(facility.max_value)<int(request.data["choosen_value"]):
             return Response({"message":" choosen_value is too much"},status=status.HTTP_400_BAD_REQUEST)
         
-        if JibitToken.objects.filter(created_at__gte=timezone.now()-datetime.timedelta(days=1)).exists():
-            jibit_token=JibitToken.objects.get(created_at__gte=timezone.now()-datetime.timedelta(days=1))
-            access_token=jibit_token.access_token
-        else:
-            response = requests.post('https://napi.jibit.ir/ide/v1/tokens/generate', json={"apiKey":"cvYDi4nzvP","secretKey":"5Ioyhh9MDbjA19_JQi16CJWI9"})
-            JibitToken.objects.create(access_token=response.json()["accessToken"],refresh_token=response.json()["refreshToken"])
-            access_token=response.json()["accessToken"]
-        header={"Authorization":f"Bearer {access_token}"}
-        path=f"https://napi.jibit.ir/ide//v1/ibans?value={request.data['sheba_number']}"
-        response = requests.get(path,headers=header)
-        if response.status_code<200 or response.status_code>=300:
-            return Response({"message":" sheba number is not valid"},status=status.HTTP_400_BAD_REQUEST)
+        # if JibitToken.objects.filter(created_at__gte=timezone.now()-datetime.timedelta(days=1)).exists():
+        #     jibit_token=JibitToken.objects.get(created_at__gte=timezone.now()-datetime.timedelta(days=1))
+        #     access_token=jibit_token.access_token
+        # else:
+        #     response = requests.post('https://napi.jibit.ir/ide/v1/tokens/generate', json={"apiKey":"cvYDi4nzvP","secretKey":"5Ioyhh9MDbjA19_JQi16CJWI9"})
+        #     JibitToken.objects.create(access_token=response.json()["accessToken"],refresh_token=response.json()["refreshToken"])
+        #     access_token=response.json()["accessToken"]
+        # header={"Authorization":f"Bearer {access_token}"}
+        # path=f"https://napi.jibit.ir/ide//v1/ibans?value={request.data['sheba_number']}"
+        # response = requests.get(path,headers=header)
+        # if response.status_code<200 or response.status_code>=300:
+        #     return Response({"message":" sheba number is not valid"},status=status.HTTP_400_BAD_REQUEST)
         
-        if response.json()["ibanInfo"]["bank"]!=facility.bank.jiibit_bank_naem:
-            return Response({"message":"name of bank is not ok"},status=status.HTTP_400_BAD_REQUEST)
+        # if response.json()["ibanInfo"]["bank"]!=facility.bank.jiibit_bank_naem:
+        #     return Response({"message":"name of bank is not ok"},status=status.HTTP_400_BAD_REQUEST)
         
-        if response.json()["ibanInfo"]["status"]!="ACTIVE":
-            return Response({"message":" sheba_number is not active"},status=status.HTTP_400_BAD_REQUEST)
+        # if response.json()["ibanInfo"]["status"]!="ACTIVE":
+        #     return Response({"message":" sheba_number is not active"},status=status.HTTP_400_BAD_REQUEST)
         
-        if len(response.json()["ibanInfo"]["owners"])>1:
-            return Response({"message":" account is not valid"},status=status.HTTP_400_BAD_REQUEST)
+        # if len(response.json()["ibanInfo"]["owners"])>1:
+        #     return Response({"message":" account is not valid"},status=status.HTTP_400_BAD_REQUEST)
         
         if FacilityInstallmentNumber.objects.filter(facility=facility,id=int(request.data["facility_installment_id"])).exists()==False:
             return Response({"message":" facility_installment_id is not valid"},status=status.HTTP_400_BAD_REQUEST)
