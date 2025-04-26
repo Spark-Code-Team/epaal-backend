@@ -454,7 +454,7 @@ class MyCartView(APIView):
     def get(self,request): 
         if Cart.objects.filter(user=request.user).exists():
             cart=Cart.objects.get(user=request.user)
-            return Response({"data":ProductInstanceSerialiser(instance=cart.products.all(),many=True).data},status=status.HTTP_200_OK)
+            return Response({"data":AllProductInstanceSerializer(instance=cart.products.all(),many=True, context={"request":request}).data},status=status.HTTP_200_OK)
         else:
             Cart.objects.create(user=request.user)
             return Response({"data":[]},status=status.HTTP_200_OK)

@@ -4,7 +4,7 @@ from Admin.models import Shop
 from .models import ProductDynamicField, ProductPicture, ProductStaticField, ToplevelTopic,MidlevelTopic,ProductTopic,Product,LowlevelTopic,StaticField,ProductInstance,FieldValue
 
 
-from Product.serializers import AllProductInstanceSerializer
+
 
 class ToplevelTopicSerializer(serializers.ModelSerializer):
     
@@ -228,10 +228,10 @@ class NormalProductSerialiser(serializers.ModelSerializer):
         else:
             return None
 class ProductInstanceSerialiser(serializers.ModelSerializer):
-    product=AllProductInstanceSerializer()
+    product=NormalProductSerialiser()
     class Meta:
         model=ProductInstance
-        fields=("product")
+        fields=("__all__")
 
 
 
