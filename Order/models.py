@@ -1,7 +1,7 @@
 from django.db import models
 
 from Product.models import Product, ProductInstance
-from User.models import CustomUser,Address
+from User.models import CustomUser,Address, UserCreditTransaction
 from Transaction.models import Tranaction
 # Create your models here.
 class Cart(models.Model):
@@ -16,12 +16,12 @@ class Cart(models.Model):
 
 class Order(models.Model):
     user=models.ForeignKey(CustomUser,on_delete=models.CASCADE,related_name="user_id_order")
-    products=models.ManyToManyField(Product,related_name="product_ids_order")
+    product_intances=models.ManyToManyField(ProductInstance,related_name="product_ids_order")
     address=models.ForeignKey(Address,on_delete=models.CASCADE,related_name="address_id_order")
     all_price=models.IntegerField(max_length=30)
     delivery_price=models.IntegerField(max_length=30)
     status=models.CharField(max_length=50)
-    transaction=models.ForeignKey(Tranaction,on_delete=models.CASCADE,related_name="transaction_id_order")
+    transaction=models.ForeignKey(UserCreditTransaction,on_delete=models.CASCADE,related_name="transaction_id_order")
     num_of_product=models.IntegerField(default=1)
     is_paid=models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -34,7 +34,7 @@ class Order(models.Model):
 
 class BoughtOrder(models.Model):
     user=models.ForeignKey(CustomUser,on_delete=models.CASCADE,related_name="user_id_bought_order")
-    product=models.ForeignKey(Product,on_delete=models.CASCADE,related_name="product_id_bought_order")
+    product_intance=models.ForeignKey(ProductInstance,on_delete=models.CASCADE,related_name="product_id_bought_order")
     order=models.ForeignKey(Order,on_delete=models.CASCADE,related_name="order_id_bought_order")
     product_discount=models.IntegerField(max_length=3)
     all_discount=models.IntegerField(max_length=3)

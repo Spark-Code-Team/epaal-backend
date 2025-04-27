@@ -150,11 +150,17 @@ class SubmitDigitalView(APIView):
             file_obj = request.data.get(f"data[{index}][file]")
             value_obj = request.data.get(f"data[{index}][value]")
             id_obj = request.data.get(f"data[{index}][id]")
+            print(file_obj)
+
+            try:
+                document = FacilityDocument.objects.get(id=id_obj)
+            except FacilityDocument.DoesNotExist:
+                return Response({"message": f"Document with id {id_obj} does not exist"}, status=status.HTTP_400_BAD_REQUEST)
 
             grouped_data.append({
                 "file": file_obj if file_obj else None,
                 "value": value_obj if value_obj else None,
-                "document": FacilityDocument.objects.get(id=id_obj).id,
+                "document": document.id,
                 "user_facility": user_facility.id,
                 "status":"not_confirmed"
             })

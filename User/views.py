@@ -2,16 +2,17 @@
 import requests
 from Bank.models import UserFacility,UserInstallment
 from Bank.serializers import CancledFacilityUseerSerialiser, DoneFacilityUseerSerialiser, FacilityUseerSerialiser, InstallmentFacilityUseerSerialiser, UserInstallmentSerialiser
+from Order.serializers import OrderSerializer
 from Product.serializers import ProductInstanceSerialiser, ProductSerialiser, AllProductInstanceSerializer
 from Product.models import Product, ProductInstance
-from Order.models import Cart
+from Order.models import BoughtOrder, Cart,Order
 from User.models import CustomUser
 from User.serializers import AddressProfileSerializer, AddressSerializer, ConfirmationSerializer, HomeSerializer, TempAdressSerializer, UserRegisterSerializer, UserWalletSerialiser
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
-from EvaamBack import settings
+from EvaamBack import  settings
 from Role.models import Role
 import datetime
 from django.utils import timezone
@@ -526,14 +527,58 @@ class BuyProductView(APIView):
             return Response({"error":"your balance is not enough"},status=status.HTTP_400_BAD_REQUEST)
         wallet.balance-=all_cost
         wallet.save()
-        UserCreditTransaction.objects.create(credit_wallet=wallet,
+        tranasction=UserCreditTransaction.objects.create(credit_wallet=wallet,
                                                 value=all_cost,
                                                 type="bought",
                                                 is_booster=False
                                                 )
+        
+        if not Address.objects.filter(user=request.user).exists():
+            return Response({"error": "No address found for the user"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        address = Address.objects.filter(user=request.user).order_by("-created_at").first()
+
+        order = Order.objects.create(
+            user=request.user,
+            all_price=all_cost,
+            delivery_price=0,  # Adjust if needed
+            status="paid",
+            transaction=tranasction,  # Add transaction logic if applicable
+            num_of_product=products.count(),
+            is_paid=True,
+            address=address
+        )
+
+        # Add all product instances to the order
+        for product in products:
+            order.product_intances.add(product)
+
+        # Create BoughtOrder instances for each product
+        for product in products:
+            BoughtOrder.objects.create(
+                user=request.user,
+                product_intance=product,
+                order=order,
+                product_discount=product.discount,
+                all_discount=0,  # Adjust if needed
+                product_cost=product.price,
+                paid_cost=self.final_cost(product.price, product.discount)
+            )
         cart.products.clear()
+
         return Response({"message":"your bought is done"},status=status.HTTP_200_OK)
         
+class MyOrderView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        orders = Order.objects.filter(user=request.user).order_by("-created_at")
+        if not orders.exists():
+            return Response({"error": "No orders found"}, status=status.HTTP_404_NOT_FOUND)
+        return Response({"orders": OrderSerializer(instance=orders,many=True).data}, status=status.HTTP_200_OK)
+
+
+
 
 class PayInstallmentVeiw(APIView):
     permission_classes = [IsAuthenticated]
