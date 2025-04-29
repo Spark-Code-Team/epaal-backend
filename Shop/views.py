@@ -3,6 +3,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
+from Shop.models import ShopRequest
+from Shop.serializers import CreateShopRequestSerializer, ShopRequestSerializer
 from Product.models import StaticField, ToplevelTopic, MidlevelTopic, LowlevelTopic, ProductTopic
 from Product.serializers import GetFieldForCreateProductSerializer, GetFieldSerializer, ToplevelTopicSerializer, MidlevelTopicSerializer, LowlevelTopicSerializer, ProductTopicSerializer
 # Create your views here.
@@ -96,4 +98,14 @@ class GetFieldsForCreateProductView(APIView):
         if not fields:
             return Response({"error":"there is not any fields"},status=status.HTTP_204_NO_CONTENT)
         return Response({"data":GetFieldForCreateProductSerializer(instance=fields, many=True).data})
+    
+
+    
+class CreateShopRequestView(APIView):    
+    def post(self,request):
+        serializer = CreateShopRequestSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message":"Shop request created successfully"},status=status.HTTP_201_CREATED)
+        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
     

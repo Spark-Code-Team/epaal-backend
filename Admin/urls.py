@@ -1,6 +1,6 @@
 from django.urls import path, include, re_path
 
-from .views import (ConnectMidlevelToProviderBranchView,
+from .views import (ConnectMidlevelToProviderBranchView, GetAllShopRequestView, GetSingleShopRequestView,
                     ShopView,ALLShopView,SingleShopView,
                     GetBoundBranchOneMidTopicView,
                     UnboundBranchOneMidTopicView,
@@ -23,6 +23,8 @@ urlpatterns = [
     path("confirm_final_waiting", ConfirmFinalWaitingView.as_view(), name="confirm_final_waiting"),
     path("reject_facility", RejectFacilityView.as_view(), name="reject_facility"),
     path("get_user_file", GetUserFileView.as_view(), name="get_user_file"),
+    path("all_shop_request", GetAllShopRequestView.as_view(), name="all_shop_request"),
+    path("single_shop_request", GetSingleShopRequestView.as_view(), name="single_shop_request"),
 
 
 

@@ -7,6 +7,8 @@ from rest_framework.views import APIView
 from django.db import IntegrityError, transaction
 import datetime
 from Bank.serializers import FacilityUseerSerialiser, GetUserDocumentSerializer
+from Shop.models import ShopRequest
+from Shop.serializers import ShopRequestSerializer
 from User.models import CreditWallet, UserCreditTransaction
 from .models import Shop,Provider,ProviderBranch
 from Product.models import MidlevelTopic,MidlevelTopicProviderBranch
@@ -324,3 +326,28 @@ class GetUserFileView(APIView):
         else:
             return Response({"data":[]},status=status.HTTP_200_OK)
 
+
+class GetSingleShopRequestView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self,request):
+        if request.user.role.name!="admin":
+            return Response({"message":"You can not access this url"},status=status.HTTP_403_FORBIDDEN)
+        if request.query_params.get("shop_request_id") is None or request.query_params["shop_request_id"] == "":
+            return Response({"message":"send shop_request_id"},status=status.HTTP_400_BAD_REQUEST)
+        if not ShopRequest.objects.filter(id=request.query_params["shop_request_id"]).exists():
+            return Response({"message":"shop_request not found"},status=status.HTTP_404_NOT_FOUND)
+        shop_request=ShopRequest.objects.get(id=request.query_params["shop_request_id"])
+
+        serializer = ShopRequestSerializer(shop_request)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+class GetAllShopRequestView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self,request):
+        if request.user.role.name!="admin":
+            return Response({"message":"You can not access this url"},status=status.HTTP_403_FORBIDDEN)
+        if ShopRequest.objects.filter(is_confirmed=False).exists() == False:
+            return Response({"data":{}},status=status.HTTP_200_OK)
+        return Response({"data":ShopRequestSerializer(instance=ShopRequest.objects.filter(is_confirmed=False),many=True).data},status=status.HTTP_200_OK) 
