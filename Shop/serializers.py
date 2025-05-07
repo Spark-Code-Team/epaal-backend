@@ -6,7 +6,14 @@ class ShopRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = ShopRequest
         fields = '__all__'
+
+    def update(self, instance, validated_data):
+        print("man injam kooni")
+        instance.is_seen = validated_data.get('is_seen', instance.is_seen) 
+        instance.save()
+        return instance
+    
 class CreateShopRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = ShopRequest
-        fields = ('shop_name', 'first_name', 'last_name', 'phone_number', 'site_url')
+        fields = ('shop_name', 'first_name', 'last_name', 'phone_number', 'site_url',"is_seen")

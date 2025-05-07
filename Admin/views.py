@@ -332,22 +332,60 @@ class GetSingleShopRequestView(APIView):
 
     def get(self,request):
         if request.user.role.name!="admin":
-            return Response({"message":"You can not access this url"},status=status.HTTP_403_FORBIDDEN)
+            return Response({"error":"You can not access this url"},status=status.HTTP_403_FORBIDDEN)
         if request.query_params.get("shop_request_id") is None or request.query_params["shop_request_id"] == "":
-            return Response({"message":"send shop_request_id"},status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error":"send shop_request_id"},status=status.HTTP_400_BAD_REQUEST)
         if not ShopRequest.objects.filter(id=request.query_params["shop_request_id"]).exists():
-            return Response({"message":"shop_request not found"},status=status.HTTP_404_NOT_FOUND)
+            return Response({"error":"shop_request not found"},status=status.HTTP_404_NOT_FOUND)
         shop_request=ShopRequest.objects.get(id=request.query_params["shop_request_id"])
 
         serializer = ShopRequestSerializer(shop_request)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
+    def put(self,request):
+        if request.user.role.name!="admin":
+            return Response({"error":"You can not access this url"},status=status.HTTP_403_FORBIDDEN)
+        
+        if request.data.get("objects") is None or request.data["objects"] == "":  
+            return Response({"error":"send objects"},status=status.HTTP_400_BAD_REQUEST)
+        
+        if not isinstance(request.data["objects"], list):
+            return Response({"error":"objects should be a list"},status=status.HTTP_400_BAD_REQUEST)
+        
+        for object in request.data["objects"]:
+            if object["id"] is None or object["id"] == "":
+                return Response({"error":"send id"},status=status.HTTP_400_BAD_REQUEST)
+            if not ShopRequest.objects.filter(id=object["id"]).exists():
+                return Response({"error":"shop_request not found"},status=status.HTTP_404_NOT_FOUND)
+            if object.get("is_seen") is None:
+                return Response({"error":"send is_seen true of false"},status=status.HTTP_400_BAD_REQUEST)
+            
+        for object in request.data["objects"]:
+            print(object)
+            shop_request=ShopRequest.objects.get(id=object["id"])
+            serializer = ShopRequestSerializer(instance=shop_request,data=object,partial=True)
+            if serializer.is_valid(raise_exception=True): 
+                serializer.save()
+
+
+        return Response({"data":"shop_request updated successfully"},status=status.HTTP_200_OK)                 
+
+    
 class GetAllShopRequestView(APIView):
     permission_classes = (IsAuthenticated,)
 
     def get(self,request):
+        filter_kwargs={}
         if request.user.role.name!="admin":
             return Response({"message":"You can not access this url"},status=status.HTTP_403_FORBIDDEN)
-        if ShopRequest.objects.filter(is_confirmed=False).exists() == False:
+        if request.query_params.get("is_seen") is not None:
+            if request.query_params.get("is_seen") not in ["true","false"]:
+                return Response({"message":"send is_seen"},status=status.HTTP_400_BAD_REQUEST)
+            else:
+                if request.query_params.get("is_seen") == "true":
+                    filter_kwargs["is_seen"]=True
+                else:
+                    filter_kwargs["is_seen"]=False
+        if ShopRequest.objects.filter(**filter_kwargs).exists() == False:
             return Response({"data":{}},status=status.HTTP_200_OK)
-        return Response({"data":ShopRequestSerializer(instance=ShopRequest.objects.filter(is_confirmed=False),many=True).data},status=status.HTTP_200_OK) 
+        return Response({"data":ShopRequestSerializer(instance=ShopRequest.objects.filter(**filter_kwargs),many=True).data},status=status.HTTP_200_OK) 

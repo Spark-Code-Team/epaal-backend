@@ -6,13 +6,22 @@ from Transaction.models import Tranaction
 # Create your models here.
 class Cart(models.Model):
     user=models.ForeignKey(CustomUser,on_delete=models.CASCADE,related_name="user_id_cart")
-    products=models.ManyToManyField(ProductInstance,related_name="product_id_cart",null=True,blank=True)
 
     class Meta:
         verbose_name = 'cart'
         verbose_name_plural = 'carts'
         db_table = 'cart'
 
+class CartItem(models.Model):
+    cart=models.ForeignKey(Cart,on_delete=models.CASCADE,related_name="cart_id_cart_item")
+    product_instance=models.ForeignKey(ProductInstance,on_delete=models.CASCADE,related_name="product_instance_id_cart_item")
+    quantity=models.IntegerField(default=1)
+
+    class Meta:
+        verbose_name = 'cart_item'
+        verbose_name_plural = 'cart_items'
+        db_table = 'cart_item'
+        
 
 class Order(models.Model):
     user=models.ForeignKey(CustomUser,on_delete=models.CASCADE,related_name="user_id_order")

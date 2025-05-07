@@ -1,0 +1,35 @@
+version: '3.9'
+
+services:
+  web:
+    build: .
+    command: gunicorn Loana.wsgi:application --bind 0.0.0.0:8000
+    volumes:
+      - .:/code
+      - static_volume:/code/staticfiles
+      - media_volume:/code/uploads
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      - DEBUG=0
+      - DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 
+      - DJANGO_SECRET_KEY=supersecretkey
+
+  db:
+    image: postgres:15
+    restart: always
+    environment:
+      - POSTGRES_DB=loana
+      - POSTGRES_USER=loana_user
+      - POSTGRES_PASSWORD=loana_pass
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    
+    ports:
+      - "5432:5432"
+volumes:
+  postgres_data:
+  static_volume:
+  media_volume:
