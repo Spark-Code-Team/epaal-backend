@@ -1,24 +1,30 @@
 version: '3.9'
 
 services:
-  web:
-    build: .
-    command: gunicorn Loana.wsgi:application --bind 0.0.0.0:8000
+  epaal-web:
+    build:
+      context: .
+      dockerfile: dockerfile
+    command: gunicorn EvaamBack.wsgi:application --bind 0.0.0.0:8001
     volumes:
       - .:/code
-      - static_volume:/code/staticfiles
-      - media_volume:/code/uploads
     ports:
-      - "8000:8000"
-    depends_on:
-      - db
+      - "8001:8001"
     environment:
       - DEBUG=0
-      - DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 
+      - DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1
       - DJANGO_SECRET_KEY=supersecretkey
+      - DB_NAME=epaal_db
+      - DB_USER=loana_user
+      - DB_PASSWORD=loana_pass
+      - DB_HOST=loana-db
+      - DB_PORT=5432
+    depends_on:
+      - loana-db
 
-  db:
+  loana-db:
     image: postgres:15
+    container_name: loana-db
     restart: always
     environment:
       - POSTGRES_DB=loana
@@ -26,10 +32,8 @@ services:
       - POSTGRES_PASSWORD=loana_pass
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    
     ports:
       - "5432:5432"
+
 volumes:
   postgres_data:
-  static_volume:
-  media_volume:
