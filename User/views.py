@@ -3,9 +3,9 @@ import requests
 from Bank.models import UserFacility,UserInstallment
 from Bank.serializers import CancledFacilityUseerSerialiser, DoneFacilityUseerSerialiser, FacilityUseerSerialiser, InstallmentFacilityUseerSerialiser, UserInstallmentSerialiser
 from Order.serializers import OrderSerializer
-from Product.serializers import ProductInstanceSerialiser, ProductSerialiser, AllProductInstanceSerializer
+from Product.serializers import CartItemSerializer, CreateCartItemSerializer, ProductInstanceSerialiser, ProductSerialiser, AllProductInstanceSerializer
 from Product.models import Product, ProductInstance
-from Order.models import BoughtOrder, Cart,Order
+from Order.models import BoughtOrder, Cart, CartItem,Order
 from User.models import CustomUser
 from User.serializers import AddressProfileSerializer, AddressSerializer, ConfirmationSerializer, HomeSerializer, TempAdressSerializer, UserRegisterSerializer, UserWalletSerialiser
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -455,12 +455,15 @@ class MyCartView(APIView):
     def get(self,request): 
         if Cart.objects.filter(user=request.user).exists():
             cart=Cart.objects.get(user=request.user)
-            return Response({"data":AllProductInstanceSerializer(instance=cart.products.all(),many=True, context={"request":request}).data},status=status.HTTP_200_OK)
+            cart_items=CartItem.objects.filter(cart=cart)
+            if not cart_items:
+                return Response({"data":[]},status=status.HTTP_200_OK)
+            return Response({"data":CartItemSerializer(instance=cart_items,many=True, context={"request":request}).data},status=status.HTTP_200_OK)
         else:
             Cart.objects.create(user=request.user)
             return Response({"data":[]},status=status.HTTP_200_OK)
         
-class AddProductToCardView(APIView):
+class AddProductsToCardView(APIView):
     permission_classes = [IsAuthenticated]
     def post(seld,request): 
         if Cart.objects.filter(user=request.user).exists():
@@ -468,16 +471,41 @@ class AddProductToCardView(APIView):
         else:
             cart=Cart.objects.create(user=request.user)
 
-        product_id = request.data.get("product_id")
-        if not product_id:
-            return Response({"error": "product_id is required"}, status=status.HTTP_400_BAD_REQUEST)
-        if ProductInstance.objects.filter(id=product_id).exists()==False:
-            return Response({"error":f"productintance with id {product_id} is not exist"},status=status.HTTP_400_BAD_REQUEST)
-        product_instrance = ProductInstance.objects.get(id=product_id)
-        cart.products.add(product_instrance)
-        cart.save()
-        return Response({"message": "Product added to cart successfully"}, status=status.HTTP_200_OK)            
-        
+        if request.data.get("product_instances") is None:
+            return Response({"error":"send product_instances"},status=status.HTTP_400_BAD_REQUEST)
+        if not isinstance(request.data.get("product_instances"),list):
+            return Response({"error":"product_instances must be a list"})
+        product_instances=request.data["product_instances"]
+        new_product_instance=[]
+
+        for product_instance in product_instances:
+            product_instance["cart"]=cart.id
+
+            if product_instance.get("product_instance") is None:
+                return Response({"error":"send product instance product_instance"},status=status.HTTP_400_BAD_REQUEST)
+            if product_instance.get("quantity") is None:
+                return Response({"error":"send quantity"},status=status.HTTP_400_BAD_REQUEST)
+            if product_instance.get("quantity")<1:
+                return Response({"error":"quantity must be greater than 0"},status=status.HTTP_400_BAD_REQUEST)
+
+            if ProductInstance.objects.filter(id=product_instance["product_instance"]).exists()==False:
+                return Response({"error":f"product instance with product_instance {product_instance['product_instance']} does not exist"},status=status.HTTP_400_BAD_REQUEST)
+            if CartItem.objects.filter(cart=cart,product_instance__id=product_instance["product_instance"]).exists():
+                cart_item=CartItem.objects.get(cart=cart,product_instance__id=product_instance["product_instance"])
+                cart_item.quantity+=product_instance["quantity"]
+                cart_item.save()
+            else:
+                new_product_instance.append(product_instance)
+
+        ser_data=CreateCartItemSerializer(data=new_product_instance,many=True)
+        if ser_data.is_valid(raise_exception=True):
+            ser_data.save()
+            return Response({"message": "Products added to cart successfully"}, status=status.HTTP_200_OK)            
+
+        else:
+            return Response({"error":"serializer is not valid"},status=status.HTTP_400_BAD_REQUEST)
+
+
 class ReplaceCartCardView(APIView):
     permission_classes = [IsAuthenticated]
     def post(self,request):
@@ -486,23 +514,34 @@ class ReplaceCartCardView(APIView):
         else:
             cart = Cart.objects.create(user=request.user)
 
-        product_ids = request.data.get("product_ids")
-        for product_id in request.data.get("product_ids"):
-            if ProductInstance.objects.filter(id=product_id).exists()==False:
-                return Response({"error":f"product instance with id {product_id} does not exist"},status=status.HTTP_400_BAD_REQUEST)
-        if product_ids ==[]:
-            cart.products.clear()
-            return Response({"message": "products deleted successfully"}, status=status.HTTP_200_OK)
-        if not product_ids:
-            return Response({"error": "product_ids are required"}, status=status.HTTP_400_BAD_REQUEST)
+        if request.data.get("product_instances") is None:
+            return Response({"error":"send product_instances"},status=status.HTTP_400_BAD_REQUEST)
+        if not isinstance(request.data.get("product_instances"),list):
+            return Response({"error":"product_instances must be a list"})
+        product_instances=request.data["product_instances"]
 
-        cart.products.clear()
-        for product_id in product_ids:
-            product = ProductInstance.objects.get(id=product_id)
-            cart.products.add(product)
-        cart.save()
+        for product_instance in product_instances:
+            product_instance["cart"]=cart.id
 
-        return Response({"message": "Cart updated successfully"}, status=status.HTTP_200_OK)
+            if product_instance.get("product_instance") is None:
+                return Response({"error":"send product instance product_instance"},status=status.HTTP_400_BAD_REQUEST)
+            if product_instance.get("quantity") is None:
+                return Response({"error":"send quantity"},status=status.HTTP_400_BAD_REQUEST)
+            if product_instance.get("quantity")<1:
+                return Response({"error":"quantity must be greater than 0"},status=status.HTTP_400_BAD_REQUEST)
+
+            if ProductInstance.objects.filter(id=product_instance["product_instance"]).exists()==False:
+                return Response({"error":f"product instance with product_instance {product_instance['product_instance']} does not exist"},status=status.HTTP_400_BAD_REQUEST)
+            
+
+        ser_data=CreateCartItemSerializer(data=product_instances,many=True)
+        if ser_data.is_valid(raise_exception=True):
+            CartItem.objects.filter(cart=cart.id).delete() 
+            ser_data.save()
+            return Response({"message": "Products added to cart successfully"}, status=status.HTTP_200_OK)            
+
+        else:
+            return Response({"error":"serializer is not valid"},status=status.HTTP_400_BAD_REQUEST)
     
 class BuyProductView(APIView):
     permission_classes = [IsAuthenticated]

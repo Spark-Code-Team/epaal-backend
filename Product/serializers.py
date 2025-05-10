@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from Admin.models import Shop
+from Order.models import CartItem
 from .models import ProductDynamicField, ProductPicture, ProductStaticField, ToplevelTopic,MidlevelTopic,ProductTopic,Product,LowlevelTopic,StaticField,ProductInstance,FieldValue
 
 
@@ -404,3 +405,18 @@ class AllProductInstanceSerializer(serializers.ModelSerializer):
     def get_product_name(self,obj):
         return obj.product.name
 
+class CartItemSerializer(serializers.ModelSerializer):
+    product_instance=serializers.SerializerMethodField()
+
+    class Meta:
+        model=CartItem
+        fields=("product_instance","quantity")
+
+    def get_product_instance(self,obj):
+        return AllProductInstanceSerializer(instance=obj.product_instance,context={"request":self.context.get("request")}).data
+    
+
+class CreateCartItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=CartItem
+        fields=("__all__")
