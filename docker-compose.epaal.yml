@@ -4,14 +4,12 @@ services:
   epaal-db:
     image: postgres:15
     container_name: epaal_db
-    environment:
-      - POSTGRES_DB=epaal_db
-      - POSTGRES_USER=epaal_user
-      - POSTGRES_PASSWORD=epaal_pass
+    env_file:
+      - ./.env-dev
     volumes:
       - epaal_pg_data:/var/lib/postgresql/data
     ports:
-      - "5433:5432"  # پورت متفاوت چون 5432 برای پروژه دیگه رزرو شده
+      - "5433:5432"
 
   epaal-web:
     build: .
@@ -24,13 +22,6 @@ services:
       - "8001:8001"
     env_file:
       - ./.env-dev
-    environment:
-        POSTGRES_DB: "epaal_db"
-        POSTGRES_HOST: "epaal_db"
-        POSTGRES_PORT: 5432
-        POSTGRES_USER: "epaal_user"
-        POSTGRES_PASSWORD: "epaal_pass"
-        DEBUG: 0
     depends_on:
       - epaal-db
 
@@ -38,3 +29,4 @@ volumes:
   epaal_pg_data:
   static_volume:
   media_volume:
+

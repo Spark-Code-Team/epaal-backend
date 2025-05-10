@@ -22,15 +22,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 import os
-env = environ.Env(
-SECRET_KEY = 'django-insecure-o5o2ox(p9ivp*g)l6ca$#@$_18h9!+2q)e7ff1myb$oin2hv#-'
-)
+import environ
+
+env = environ.Env()
 environ.Env.read_env(os.path.join(BASE_DIR, '.env-dev'))
-SECRET_KEY = env('SECRET_KEY')
 
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+SECRET_KEY = env('SECRET_KEY',default='django-insecure-o5o2ox(p9ivp*g)l6ca$#@$_18h9!+2q)e7ff1myb$oin2hv#-')
+DEBUG = env.bool("DEBUG", default=False)
+
 
 ALLOWED_HOSTS = ['185.79.97.38','localhost', '127.0.0.1']
 
