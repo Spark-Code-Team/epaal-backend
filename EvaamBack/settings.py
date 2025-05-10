@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 from datetime import timedelta
-
+import environ
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -22,7 +22,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 import os
-SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'your-default-insecure-key')
+env = environ.Env(
+SECRET_KEY = 'django-insecure-o5o2ox(p9ivp*g)l6ca$#@$_18h9!+2q)e7ff1myb$oin2hv#-'
+)
+environ.Env.read_env(os.path.join(BASE_DIR, '.env-dev'))
+SECRET_KEY = env('SECRET_KEY')
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -116,11 +120,11 @@ import config
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config.NAME,
-        'USER': config.USER,
-        'PASSWORD': config.PASSWORD,
-        'HOST': config.HOST,
-        'PORT': '5432',
+        'NAME': env('POSTGRES_DB'), 
+        'HOST': env('POSTGRES_HOST'), 
+        'PORT': env('POSTGRES_PORT'), 
+        'USER': env('POSTGRES_USER'),
+        'PASSWORD': env('POSTGRES_PASSWORD'),
     }
 }
 

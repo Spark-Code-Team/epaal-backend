@@ -22,15 +22,15 @@ services:
       - media_volume:/code/uploads
     ports:
       - "8001:8001"
+    env_file:
+      - ./.env-dev
     environment:
-      - DEBUG=0
-      - DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1
-      - DJANGO_SECRET_KEY=supersecretkey
-      - DB_NAME=epaal_db
-      - DB_USER=epaal_user
-      - DB_PASSWORD=epaal_pass
-      - DB_HOST=epaal_db
-      - DB_PORT=5432
+        POSTGRES_DB: "epaal_db"
+        POSTGRES_HOST: "epaal_db"
+        POSTGRES_PORT: 5432
+        POSTGRES_USER: "epaal_user"
+        POSTGRES_PASSWORD: "epaal_pass"
+        DEBUG: 0
     depends_on:
       - epaal-db
 
