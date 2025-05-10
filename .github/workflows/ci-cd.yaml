@@ -1,0 +1,27 @@
+name: 🚀 Deploy Django to Server
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v3
+
+    - name: 📦 Setup SSH
+      uses: webfactory/ssh-agent@v0.5.4
+      with:
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}  # استفاده از secret جدید
+
+    - name: 🐳 Deploy with SSH
+      run: |
+        ssh -o StrictHostKeyChecking=no root@185.79.97.38 << 'EOF'
+          cd ~/epaal-backend  # مسیر پروژه جدید
+          git pull origin main
+          docker-compose -f docker-compose.epaal.yml down --remove-orphans
+          docker-compose -f docker-compose.epaal.yml up --build -d
+        EOF
