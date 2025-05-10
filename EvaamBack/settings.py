@@ -21,12 +21,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-o5o2ox(p9ivp*g)l6ca$#@$_18h9!+2q)e7ff1myb$oin2hv#-'
+import os
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'your-default-insecure-key')
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ['*','localhost:3000',]
+ALLOWED_HOSTS = ['185.79.97.38','localhost', '127.0.0.1']
+
 
 
 # Application definition
@@ -95,7 +98,7 @@ WSGI_APPLICATION = 'EvaamBack.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-import config
+"""
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql', 
@@ -107,6 +110,19 @@ DATABASES = {
     }
 }
 
+"""
+import config
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': config.NAME,
+        'USER': config.USER,
+        'PASSWORD': config.PASSWORD,
+        'HOST': config.HOST,
+        'PORT': '5432',
+    }
+}
 
 
 # Password validation
@@ -143,7 +159,6 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = 'static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
@@ -222,6 +237,10 @@ CORS_ALLOW_ALL_ORIGINS = True
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
 # log gile
 import logging
 from logging import Formatter

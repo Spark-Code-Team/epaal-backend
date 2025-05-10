@@ -1,0 +1,40 @@
+version: '3.9'
+
+services:
+  epaal-db:
+    image: postgres:15
+    container_name: epaal_db
+    environment:
+      - POSTGRES_DB=epaal_db
+      - POSTGRES_USER=epaal_user
+      - POSTGRES_PASSWORD=epaal_pass
+    volumes:
+      - epaal_pg_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"  # پورت متفاوت چون 5432 برای پروژه دیگه رزرو شده
+
+  epaal-web:
+    build: .
+    command: gunicorn EvaamBack.wsgi:application --bind 0.0.0.0:8001
+    volumes:
+      - .:/code
+      - static_volume:/code/staticfiles
+      - media_volume:/code/uploads
+    ports:
+      - "8001:8001"
+    environment:
+      - DEBUG=0
+      - DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1
+      - DJANGO_SECRET_KEY=supersecretkey
+      - DB_NAME=epaal_db
+      - DB_USER=epaal_user
+      - DB_PASSWORD=epaal_pass
+      - DB_HOST=epaal_db
+      - DB_PORT=5432
+    depends_on:
+      - epaal-db
+
+volumes:
+  epaal_pg_data:
+  static_volume:
+  media_volume:
