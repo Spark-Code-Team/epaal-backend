@@ -32,7 +32,7 @@ SECRET_KEY = env('SECRET_KEY',default='django-insecure-o5o2ox(p9ivp*g)l6ca$#@$_1
 DEBUG = env.bool("DEBUG", default=False)
 
 
-ALLOWED_HOSTS = ['185.79.97.38','localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['185.79.97.38','localhost', '127.0.0.1', 'api.e-vaam.com']
 
 
 
@@ -180,6 +180,7 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer', 
     ),
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',

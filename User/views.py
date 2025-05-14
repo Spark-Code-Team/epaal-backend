@@ -42,6 +42,7 @@ class SendOTP(APIView):
         return bool(re.match(pattern, phone_number))
 
     def post(self, request):
+        print(" \n \n REQUEST DATA \n \n: ", request.data)
         if request.data.get("phone_number") is None:
             return Response({"error":"send phone_number"},status=status.HTTP_400_BAD_REQUEST)
         phone_number=request.data["phone_number"]
