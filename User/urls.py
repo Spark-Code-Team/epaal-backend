@@ -45,8 +45,8 @@ urlpatterns = [
     path('my_orders/', MyOrderView.as_view(), name='my_orders'),
     path('add_products_to_card/', AddProductsToCardView.as_view(), name='add_products_to_card'),
     path('replace_cart/', ReplaceCartCardView.as_view(), name='replace_cart'),#done
-    path('buy_products/', BuyProductView.as_view(), name='buy_products'),#!must be done
-    path('get_cart_cost/', GetCartCostView.as_view(), name='get_cart_cost'),#! must be done
+    path('buy_products/', BuyProductView.as_view(), name='buy_products'),
+    path('get_cart_cost/', GetCartCostView.as_view(), name='get_cart_cost'),
     path('send_otp_second_phone_number/', SendSecondPhoneOTP.as_view(), name='send_otp_second_phone_number'),
     path('pay_installment/', PayInstallmentVeiw.as_view(), name='pay_installment'),
 

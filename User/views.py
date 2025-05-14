@@ -546,8 +546,9 @@ class ReplaceCartCardView(APIView):
     
 class BuyProductView(APIView):
     permission_classes = [IsAuthenticated]
-    def final_cost(self,cost,percent):
-        return cost - (cost * percent / 100)
+    def final_cost(self,cost,percent,quantity):
+        
+        return quantity*(cost - (cost * percent / 100))
     
     def post(self,request):
         if Cart.objects.filter(user=request.user).exists():
@@ -555,13 +556,15 @@ class BuyProductView(APIView):
         else:
             cart = Cart.objects.create(user=request.user)
 
-        products=cart.products.all()
-        if not products:
+
+        product_items=CartItem.objects.filter(cart=cart)
+        if not product_items:
             return Response({"erroe":"your cart is empty"},status=status.HTTP_400_BAD_REQUEST)
         all_cost=0
-        for product in products:
-            all_cost+=self.final_cost(product.price,product.discount)
-
+        num_of_product=0
+        for product_item in product_items:
+            all_cost+=self.final_cost(product_item.product_instance.price,product_item.product_instance.discount,product_item.quantity)
+            num_of_product+=product_item.quantity
         wallet=CreditWallet.objects.get_or_create(user=request.user)[0]
         if wallet.balance<all_cost:
             return Response({"error":"your balance is not enough"},status=status.HTTP_400_BAD_REQUEST)
@@ -581,30 +584,26 @@ class BuyProductView(APIView):
         order = Order.objects.create(
             user=request.user,
             all_price=all_cost,
-            delivery_price=0,  # Adjust if needed
+            delivery_price=0,  
             status="paid",
-            transaction=tranasction,  # Add transaction logic if applicable
-            num_of_product=products.count(),
+            transaction=tranasction,  
+            num_of_product=num_of_product,
             is_paid=True,
             address=address
         )
-
-        # Add all product instances to the order
-        for product in products:
-            order.product_intances.add(product)
-
-        # Create BoughtOrder instances for each product
-        for product in products:
-            BoughtOrder.objects.create(
+        for product_item in product_items:
+                BoughtOrder.objects.create(
                 user=request.user,
-                product_intance=product,
+                product_intance=product_item.product_instance,
                 order=order,
-                product_discount=product.discount,
-                all_discount=0,  # Adjust if needed
-                product_cost=product.price,
-                paid_cost=self.final_cost(product.price, product.discount)
+                product_discount=product_item.product_instance.discount,
+                all_discount=0,  
+                product_cost=product_item.product_instance.price,
+                quantity=product_item.quantity,
+                paid_cost=self.final_cost(product_item.product_instance.price, product_item.product_instance.discount, product_item.quantity),
             )
-        cart.products.clear()
+
+        CartItem.objects.filter(cart=cart).delete()
 
         return Response({"message":"your bought is done"},status=status.HTTP_200_OK)
         
@@ -653,8 +652,9 @@ class PayInstallmentVeiw(APIView):
 
 class GetCartCostView(APIView):
     permission_classes = [IsAuthenticated]
-    def final_cost(self,cost,percent):
-        return cost - (cost * percent / 100)
+    def final_cost(self,cost,percent,quantity):
+        
+        return quantity*(cost - (cost * percent / 100))
     
     def get(self,request):
         if Cart.objects.filter(user=request.user).exists():
@@ -662,14 +662,14 @@ class GetCartCostView(APIView):
         else:
             cart = Cart.objects.create(user=request.user)
 
-        products=cart.products.all()
-        if not products:
+        product_items=CartItem.objects.filter(cart=cart)
+        if not product_items:
             return Response({"erroe":"your cart is empty"},status=status.HTTP_400_BAD_REQUEST)
-        all_cost=0
-        for product in products:
-            all_cost+=self.final_cost(product.price,product.discount)
+        cost=0
+        for product_item in product_items:
+            cost+=self.final_cost(product_item.product_instance.price,product_item.product_instance.discount,product_item.quantity)
+        return Response({"all_products_cost":cost},status=status.HTTP_200_OK)
 
-        return Response({"all_products_cost":all_cost},status=status.HTTP_200_OK)
 
 
 class SingleiInstallmentView(APIView):

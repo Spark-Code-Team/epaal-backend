@@ -25,7 +25,6 @@ class CartItem(models.Model):
 
 class Order(models.Model):
     user=models.ForeignKey(CustomUser,on_delete=models.CASCADE,related_name="user_id_order")
-    product_intances=models.ManyToManyField(ProductInstance,related_name="product_ids_order")
     address=models.ForeignKey(Address,on_delete=models.CASCADE,related_name="address_id_order")
     all_price=models.IntegerField(max_length=30)
     delivery_price=models.IntegerField(max_length=30)
@@ -49,6 +48,7 @@ class BoughtOrder(models.Model):
     all_discount=models.IntegerField(max_length=3)
     product_cost=models.IntegerField(max_length=30)
     paid_cost=models.IntegerField(max_length=30)
+    quantity=models.IntegerField(default=1)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
