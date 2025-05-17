@@ -16,8 +16,6 @@ services:
     command: gunicorn EvaamBack.wsgi:application --bind 0.0.0.0:8001 --log-level debug --access-logfile - --error-logfile -
     volumes:
       - .:/code
-      - static_volume:/code/staticfiles
-      - media_volume:/code/uploads
     ports:
       - "8001:8001"
     env_file:
