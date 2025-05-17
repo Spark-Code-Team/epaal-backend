@@ -67,6 +67,8 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt.token_blacklist",
 ]
 
+CSRF_TRUSTED_ORIGINS = ['https://api.e-vaam.com','http://127.0.0.1']
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -279,5 +281,5 @@ from logging import Formatter
 #         },
 #     },
 # }
-CSRF_TRUSTED_ORIGINS = ['https://*.api.e-vaam.com','https://*.127.0.0.1']
+
 
