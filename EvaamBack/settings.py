@@ -279,3 +279,5 @@ from logging import Formatter
 #         },
 #     },
 # }
+CSRF_TRUSTED_ORIGINS = ['https://*.api.e-vaam.com','https://*.127.0.0.1']
+
