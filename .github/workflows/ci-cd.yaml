@@ -20,7 +20,7 @@ jobs:
     - name: 🐳 Deploy with SSH
       run: |
         ssh -o StrictHostKeyChecking=no root@185.79.97.38 << 'EOF'
-          cd ~/epaal-backend  # مسیر پروژه جدید
+          cd ~/home/spark/epaal-backend  # مسیر پروژه جدید
           git pull origin main
           docker-compose -f docker-compose.epaal.yml down --remove-orphans
           docker-compose -f docker-compose.epaal.yml up --build -d

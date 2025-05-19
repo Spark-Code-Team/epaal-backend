@@ -1,4 +1,4 @@
-version: '3.9'
+version: "3.9"
 
 services:
   epaal-db:
@@ -23,8 +23,6 @@ services:
     depends_on:
       - epaal-db
 
+
 volumes:
   epaal_pg_data:
-  static_volume:
-  media_volume:
-

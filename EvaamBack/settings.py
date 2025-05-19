@@ -243,11 +243,9 @@ import os
 CORS_ALLOW_ALL_ORIGINS = True
 
 MEDIA_URL = '/media/'
-# MEDIA_ROOT = '/var/www/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 STATIC_URL = '/static/'
-# STATIC_ROOT = '/var/www/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # log gile
