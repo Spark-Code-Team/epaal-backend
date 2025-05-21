@@ -106,27 +106,27 @@ WSGI_APPLICATION = 'EvaamBack.wsgi.application'
 
 import config
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': env('POSTGRES_DB'), 
-#         'HOST': env('POSTGRES_HOST'), 
-#         'PORT': env('POSTGRES_PORT'), 
-#         'USER': env('POSTGRES_USER'),
-#         'PASSWORD': env('POSTGRES_PASSWORD'),
-#     }
-# }
-
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql', 
-        'NAME': config.NAME,
-        'USER': config.USER,
-        'PASSWORD': config.PASSWORD,
-        'HOST': config.HOST,  
-        'PORT': '3306',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': env('POSTGRES_DB'), 
+        'HOST': env('POSTGRES_HOST'), 
+        'PORT': env('POSTGRES_PORT'), 
+        'USER': env('POSTGRES_USER'),
+        'PASSWORD': env('POSTGRES_PASSWORD'),
     }
 }
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql', 
+#         'NAME': config.NAME,
+#         'USER': config.USER,
+#         'PASSWORD': config.PASSWORD,
+#         'HOST': config.HOST,  
+#         'PORT': '3306',
+#     }
+# }
 
 
 
@@ -182,7 +182,7 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
-        # 'rest_framework.renderers.BrowsableAPIRenderer', 
+        'rest_framework.renderers.BrowsableAPIRenderer', 
     ),
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
