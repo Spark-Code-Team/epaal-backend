@@ -6,10 +6,10 @@ from django.contrib.auth.hashers import make_password
 from django.contrib.auth import password_validation
 
 class UserRegisterSerializer(serializers.ModelSerializer):
-    role = RoleSerializer()
+    role = RoleSerializer
     class Meta:
         model = CustomUser
-        fields = ('id','first_name', 'last_name', 'national_code', 'phone_number','is_man', 'password','has_two_factor','role')
+        fields = ('id','first_name', 'last_name', 'national_code', 'phone_number','is_man', 'password','has_two_factor','role',)
         extra_kwargs = {
             'password': {'write_only': True,
                          'required':False
@@ -23,7 +23,7 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         }
 
     def create(self, validated_data, referrer_code=None, role=None):
-
+        
         if referrer_code:
             inviter_id = CustomUser.objects.filter(referrer_code=referrer_code).values_list('id', flat=True).first()
             if inviter_id is not None:
@@ -35,11 +35,9 @@ class UserRegisterSerializer(serializers.ModelSerializer):
             inviter_id = None
         
         if role:
-            print("1111111111111111111111111111111111")
             if role["name"] in ["shop_admin", "user"]:
                 user_role = Role.objects.get(name=role["name"])
         else:
-            print("2222222222222222222222222222222222")
             user_role=Role.objects.get(name="user")
         if validated_data.get('password') and validated_data['password']:
             return CustomUser.objects.create_user(
@@ -80,6 +78,7 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         return instance
 
     def validate_first_name(self, value):
+
         if value == 'admin':
             raise serializers.ValidationError('first name can not be admin')
         return value
@@ -124,6 +123,7 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         if password_validation.validate_password(value):
             raise serializers.ValidationError('the password is easy please use another')
         return value
+
 
 
 class HomeSerializer(serializers.ModelSerializer):

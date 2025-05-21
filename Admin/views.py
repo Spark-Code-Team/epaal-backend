@@ -2,11 +2,13 @@ from django.shortcuts import render
 import requests
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework import status
 from rest_framework.views import APIView
 from django.db import IntegrityError, transaction
 import datetime
 from Bank.serializers import FacilityUseerSerialiser, GetUserDocumentSerializer
+from Role.models import Role
 from Shop.models import ShopRequest
 from Shop.serializers import ShopRequestSerializer
 from User.models import CreditWallet, UserCreditTransaction
@@ -20,21 +22,24 @@ from Bank.models import UserDocumetn,UserInstallment
 # Create your views here.
 class ShopView(APIView):
     permission_classes = (IsAuthenticated,)
+    parser_classes = (MultiPartParser, FormParser)
     def post(self, request):
         if (request.user.role.name != "admin") or (request.user.is_admin is not True):
             return Response({"error":"you are not admin"},status=status.HTTP_400_BAD_REQUEST)
         try:
             with transaction.atomic():
-                request.data["role"]={"name":"shop_admin"}
-                user_ser=UserRegisterSerializer(data=request.data)
+                role=Role.objects.get(name="shop_admin") 
+                data = request.data.copy()
+                data['role'] = role.id
                 if (request.data.get("referrer_code") is not None) and(request.data["referrer_code"]):
                     referrer_code=request.data["referrer_code"]
                 else:
                     referrer_code=None
+                user_ser=UserRegisterSerializer(data=data, context={"request": data})
                 if user_ser.is_valid():
-                    shop_admin=user_ser.create(validated_data=user_ser.validated_data,role={"name":"shop_admin"},referrer_code=referrer_code)
-                    request.data["shop_admin"]=shop_admin.id
-                    shop_ser=ShopSerializer(data=request.data)
+                    shop_admin=user_ser.create(validated_data=user_ser.validated_data,role={"name": "shop_admin"},referrer_code=referrer_code)
+                    data["shop_admin"]=shop_admin.id 
+                    shop_ser=ShopSerializer(data=data)
                     if shop_ser.is_valid():
                         shop=shop_ser.save()
                         created_shop=ShopSerializer(instance=shop)

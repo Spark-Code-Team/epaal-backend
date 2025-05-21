@@ -22,14 +22,7 @@ import re
 from .models import OTP, CreditWallet,JibitToken,TempAddress,Address, UserCreditTransaction
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated
-import jdatetime
-class UserRegistration(APIView):
-    serializer_class = UserRegisterSerializer
-    def post(self, request):
-        request.body
-        ser_data = self.serializer_class(data=request.data)
-        role=Role.objects.get(name="user")
-        ##handle otp    
+import jdatetime  
 
 
 class SendOTP(APIView):

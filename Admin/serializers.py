@@ -6,7 +6,7 @@ class ShopSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Shop
-        fields = ("id",'shop_name','shop_phone','address','bio','shop_admin','shop_topic',)
+        fields = ("id",'shop_name','shop_phone','address','bio','shop_admin',"shop_logo")
 
         extra_kwargs={
             'bio':{"required":False}
