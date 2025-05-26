@@ -44,18 +44,22 @@ class ToplevelTopic(models.Model):
         verbose_name_plural = 'toplevel_topics'
         db_table = 'toplevel_topic'
 
+
     def save(self, *args, **kwargs):
         if self.pk is None:
             saved_image = self.picture
             self.picture = None
             super(ToplevelTopic, self).save(*args, **kwargs)
             if saved_image:
-                self.picture = toplevel_topic_image_directory_path(self,saved_image)
+                path=toplevel_topic_image_directory_path(self,saved_image)
+                default_storage.save(path, ContentFile(saved_image.read()))
+                self.picture = path
             else:
                 self.picture = None
             self.save()
         else:
-            super(ToplevelTopic, self).save(*args, **kwargs)
+            super(ToplevelTopic, self).save(*args, **kwargs) 
+
 
 class MidlevelTopic(models.Model):
     VALID_AVATAR_EXTENSION = ['png', 'jpg', 'jpeg']   
@@ -71,18 +75,22 @@ class MidlevelTopic(models.Model):
         verbose_name_plural = 'midlevel_topics'
         db_table = 'midlevel_topic'
 
+
     def save(self, *args, **kwargs):
         if self.pk is None:
             saved_image = self.picture
             self.picture = None
             super(MidlevelTopic, self).save(*args, **kwargs)
             if saved_image:
-                self.picture = midlevel_topic_image_directory_path(self,saved_image)
+                path=midlevel_topic_image_directory_path(self,saved_image)
+                default_storage.save(path, ContentFile(saved_image.read()))
+                self.picture = path
             else:
                 self.picture = None
             self.save()
         else:
-            super(MidlevelTopic, self).save(*args, **kwargs)
+            super(MidlevelTopic, self).save(*args, **kwargs) 
+
 
 class LowlevelTopic(models.Model):
     VALID_AVATAR_EXTENSION = ['png', 'jpg', 'jpeg']
@@ -103,12 +111,15 @@ class LowlevelTopic(models.Model):
             self.picture = None
             super(LowlevelTopic, self).save(*args, **kwargs)
             if saved_image:
-                self.picture = lowlevel_topic_image_directory_path(self,saved_image)
+                path=lowlevel_topic_image_directory_path(self,saved_image)
+                default_storage.save(path, ContentFile(saved_image.read()))
+                self.picture = path
             else:
                 self.picture = None
             self.save()
         else:
-            super(LowlevelTopic, self).save(*args, **kwargs)
+            super(LowlevelTopic, self).save(*args, **kwargs) 
+
 
 class ProductTopic(models.Model):
     VALID_AVATAR_EXTENSION = ['png', 'jpg', 'jpeg']   
@@ -123,18 +134,22 @@ class ProductTopic(models.Model):
         verbose_name_plural = 'product_topics'
         db_table = 'product_topic'
 
+
     def save(self, *args, **kwargs):
         if self.pk is None:
             saved_image = self.picture
             self.picture = None
             super(ProductTopic, self).save(*args, **kwargs)
             if saved_image:
-                self.picture = product_topic_image_directory_path(self,saved_image)
+                path=product_topic_image_directory_path(self,saved_image)
+                default_storage.save(path, ContentFile(saved_image.read()))
+                self.picture = path
             else:
                 self.picture = None
             self.save()
         else:
-            super(ProductTopic, self).save(*args, **kwargs)
+            super(ProductTopic, self).save(*args, **kwargs) 
+
 
 class StaticField(models.Model):
     name=models.CharField(max_length=100)

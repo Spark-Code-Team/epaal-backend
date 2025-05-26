@@ -138,7 +138,7 @@ class GetAllToplevelTopicView(APIView):
     def post(self,request):
         objects=ToplevelTopic.objects.filter()
         if len(objects)>0:
-            ser_data=ToplevelTopicSerializer(instance=objects,many=True)
+            ser_data=ToplevelTopicSerializer(instance=objects,context={"request":request},many=True)
             return Response({"data":ser_data.data},status=status.HTTP_200_OK)
         else:
             return Response({"error":"there is not any topic"},status=status.HTTP_204_NO_CONTENT)
@@ -163,7 +163,7 @@ class GetAllLowlevelTopicView(APIView):
             filter_kwargs["midlevel_topic"] = request.data["midlevel_topic"]
         objects=LowlevelTopic.objects.filter(**filter_kwargs)
         if len(objects)>0:
-            ser_data=LowlevelTopicSerializer(instance=objects,many=True)
+            ser_data=LowlevelTopicSerializer(instance=objects,context={"request":request},many=True)
             return Response({"data":ser_data.data},status=status.HTTP_200_OK)
         else:
             return Response({"error":"there is not any topic"},status=status.HTTP_204_NO_CONTENT)
@@ -176,7 +176,7 @@ class GetAllProductTopicView(APIView):
             filter_kwargs["lowlevel_topic"] = request.data["lowlevel_topic"]
         objects=ProductTopic.objects.filter(**filter_kwargs)
         if len(objects)>0:
-            ser_data=ProductTopicSerializer(instance=objects,many=True)
+            ser_data=ProductTopicSerializer(instance=objects,context={"request":request},many=True)
             return Response({"data":ser_data.data},status=status.HTTP_200_OK)
         else:
             return Response({"error":"there is not any topic"},status=status.HTTP_204_NO_CONTENT)
@@ -236,7 +236,7 @@ class GetMidlevelTopic(APIView):
         if(request.data.get("is_product") is not None) and( request.data["is_product"] is not ""):
             filter_kwargs["is_product"] = request.data["is_product"]
         if MidlevelTopic.objects.filter(**filter_kwargs).exists():
-            ser_data=MidlevelTopicSerializer(MidlevelTopic.objects.filter(**filter_kwargs),many=True)
+            ser_data=MidlevelTopicSerializer(MidlevelTopic.objects.filter(**filter_kwargs),context={"request":request},many=True)
             return Response({"data":ser_data.data},status=status.HTTP_200_OK)
         else:
             return Response({"error":"there is not any midlevel topic"},status=status.HTTP_204_NO_CONTENT)
