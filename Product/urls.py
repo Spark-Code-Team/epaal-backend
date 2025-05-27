@@ -4,6 +4,7 @@ from .views import ALLCategoryView, AllProductInstanceView, CreateProductView, G
 app_name = 'Product'
 urlpatterns = [
 
+
     path("all_topic", ALLCategoryView.as_view(), name="all_topic"),
     path("shop_landing", ShopLandingView.as_view(), name="shop_landing"),
     path("get_all_midlevel_topic", GetMidlevelTopic.as_view(), name="get_midelevel_topic"),##api_coed:100
