@@ -19,7 +19,7 @@ jobs:
 
     - name: 🐳 Deploy with SSH
       run: |
-        ssh -o StrictHostKeyChecking=no root@185.79.97.38 << 'EOF'
+        ssh -o StrictHostKeyChecking=no spark@185.79.97.38 << 'EOF'
           cd /home/spark/epaal-backend  # مسیر پروژه جدید
           git config --global --add safe.directory /home/spark/epaal-backend
           git pull origin main
