@@ -392,9 +392,10 @@ class AllProductInstanceSerializer(serializers.ModelSerializer):
     product_id=serializers.SerializerMethodField()
     product_image=serializers.SerializerMethodField()
     product_name=serializers.SerializerMethodField()
+    dynamic_fields=serializers.SerializerMethodField()
     class Meta:
         model=ProductInstance
-        fields=("id","product_id","product_image","product_name","price")
+        fields=("id","product_id","product_image","product_name","price","dynamic_fields")
 
     def get_product_id(self,obj):
         return obj.product.id
@@ -404,6 +405,11 @@ class AllProductInstanceSerializer(serializers.ModelSerializer):
     
     def get_product_name(self,obj):
         return obj.product.name
+    
+    def get_dynamic_fields(self,obj):
+        if ProductDynamicField.objects.filter(product_instance=obj.id).exists() is False:
+            return None
+        return ProductDynamicFieldSerialier(instance=ProductDynamicField.objects.filter(product_instance=obj.id),many=True).data
 
 class CartItemSerializer(serializers.ModelSerializer):
     product_instance=serializers.SerializerMethodField()
