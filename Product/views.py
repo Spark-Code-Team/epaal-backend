@@ -234,6 +234,7 @@ class GetMidlevelTopic(APIView):
         if(request.data.get("is_product") is not None) and( request.data["is_product"] is not ""):
             filter_kwargs["is_product"] = request.data["is_product"]
         print("hiiiiiiiiiiiiiiiiiiiiiiiiii")
+        print("22222222222222222222222222222")
         if MidlevelTopic.objects.filter(**filter_kwargs).exists():
             ser_data=MidlevelTopicSerializer(MidlevelTopic.objects.filter(**filter_kwargs),context={"request":request},many=True)
             return Response({"data":ser_data.data},status=status.HTTP_200_OK)
