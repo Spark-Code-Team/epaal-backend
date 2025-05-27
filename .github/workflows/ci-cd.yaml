@@ -21,6 +21,7 @@ jobs:
       run: |
         ssh -o StrictHostKeyChecking=no root@185.79.97.38 << 'EOF'
           cd /home/spark/epaal-backend  # مسیر پروژه جدید
+          git config --global --add safe.directory /home/spark/epaal-backend
           git pull origin main
           docker-compose -f docker-compose.epaal.yml down --remove-orphans
           docker-compose -f docker-compose.epaal.yml up --build -d
