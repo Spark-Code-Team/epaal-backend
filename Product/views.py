@@ -227,8 +227,6 @@ class CreateFieldTopicView(APIView):
             return Response({"error":ser_data.errors},status=status.HTTP_400_BAD_REQUEST)
 
 class GetMidlevelTopic(APIView):
-    permission_classes = (IsAuthenticated,)
-
     def post(self, request):
         filter_kwargs={}
         if(request.data.get("toplevel_topic") is not None) and( request.data["toplevel_topic"] is not ""):
