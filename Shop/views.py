@@ -24,6 +24,7 @@ class GetToplevelTopicView(APIView):
         ser_data=ToplevelTopicSerializer(instance=toplevel_topic, many=True)
         return Response(ser_data.data,status=status.HTTP_200_OK)
         
+        
 
 class GetMidlevelTopicView(APIView):
     permission_classes = [IsAuthenticated]
