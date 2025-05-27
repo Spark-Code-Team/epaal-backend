@@ -19,6 +19,7 @@ from User.views import (
     MyFacilityView,
     MyInstallmentView,
     BuyProductView,
+    PaymentOTPVeiw
 )
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -49,5 +50,6 @@ urlpatterns = [
     path('get_cart_cost/', GetCartCostView.as_view(), name='get_cart_cost'),
     path('send_otp_second_phone_number/', SendSecondPhoneOTP.as_view(), name='send_otp_second_phone_number'),
     path('pay_installment/', PayInstallmentVeiw.as_view(), name='pay_installment'),
+    path('payment-otp/', PaymentOTPVeiw.as_view(), name='payment-otp'),
 
 ]

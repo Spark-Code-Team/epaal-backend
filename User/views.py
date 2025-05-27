@@ -544,6 +544,18 @@ class BuyProductView(APIView):
         return quantity*(cost - (cost * percent / 100))
     
     def post(self,request):
+        user=request.user
+
+        if request.data.get("otp_code") is None:
+            return Response({"error":"send otp code"},status=status.HTTP_400_BAD_REQUEST)
+        if not OTP.objects.filter(phone_number=user.phone_number,otp_for="buy_product").exists():
+            return Response({"error":"first make an otp code for yourself"},status=status.HTTP_400_BAD_REQUEST)
+        otp=OTP.objects.get(phone_number=user.phone_number,otp_for="buy_product")
+        if timezone.now()>otp.otp_expire:
+            return Response({"error":"time of otp is expired"},status=status.HTTP_400_BAD_REQUEST)
+        if otp.otp_code!=request.data["otp_code"]:
+            return Response({"error":"the code is wrong"},status=status.HTTP_400_BAD_REQUEST)
+        
         if Cart.objects.filter(user=request.user).exists():
             cart = Cart.objects.get(user=request.user)
         else:
@@ -677,3 +689,64 @@ class SingleiInstallmentView(APIView):
             return Response({"error":"this installment is not yours"},status=status.HTTP_400_BAD_REQUEST)
         return Response({"data":UserInstallmentSerialiser(instance=installment).data},status=status.HTTP_200_OK)
     
+class PaymentOTPVeiw(APIView):
+    permission_classes = [IsAuthenticated]
+    def final_cost(self,cost,percent,quantity):
+        return quantity*(cost - (cost * percent / 100))
+    
+    def generate_otp(self):
+        return ''.join(random.choices(string.digits, k=8))
+    
+    def post(self,request):
+        if Cart.objects.filter(user=request.user).exists():
+            cart= Cart.objects.get(user=request.user)
+        else:
+            cart=Cart.objects.create(user=request.user)
+
+        product_items=CartItem.objects.filter(cart=cart)
+        if not product_items:
+            return Response({"erroe":"your cart is empty"},status=status.HTTP_400_BAD_REQUEST)
+        cost=0
+        for product_item in product_items:
+            cost+=self.final_cost(product_item.product_instance.price,product_item.product_instance.discount,product_item.quantity)
+        wallet=CreditWallet.objects.get_or_create(user=request.user)[0]
+        if wallet.balance<cost:
+            return Response({"error":"your balance is not enough"},status=status.HTTP_400_BAD_REQUEST)
+        user=request.user
+        code=self.generate_otp()
+        if OTP.objects.filter(phone_number=user.phone_number,otp_for="buy_product").exists():
+            otp=OTP.objects.get(phone_number=user.phone_number,otp_for="buy_product")
+            num_try=((timezone.now()-otp.otp_expire-datetime.timedelta(minutes=2))/datetime.timedelta(minutes=20))
+            if int(num_try)>0:
+                all_try=int(num_try)+otp.max_try
+            else:
+                all_try=otp.max_try
+            if all_try<=0:
+                return Response({"error":"request limit,try 20 minute later"},status=status.HTTP_400_BAD_REQUEST)
+            elif all_try>=3:
+                otp.otp_code=code
+                otp.max_try=2
+                otp.otp_expire=timezone.now()+datetime.timedelta(minutes=2)
+                otp.save()
+            else:
+                otp.otp_code=code
+                otp.max_try=all_try-1
+                otp.otp_expire=timezone.now()+datetime.timedelta(minutes=2)
+                otp.save()
+        else:
+            OTP.objects.create(phone_number=user.phone_number,otp_for="buy_product",otp_code=code,otp_expire=timezone.now() + datetime.timedelta(minutes=2),max_try=2)
+            
+        ## SMS HANDLING 
+        str_cost=str(cost)
+        str_cost = str_cost.replace(".", ",")  # Replace '.' with ',' for Persian format
+        print(str_cost)
+
+        data = {'from': '50002710054854', 'to': user.phone_number, 'text': f'کد خرید از ایوام \nوارد کردن این کد به منزله تخلیه کیف پول شما میباشد. \nمبلغ:{str_cost} \n کد:{code}'}
+        response = requests.post('https://console.melipayamak.com/api/send/simple/2d475adf0f3f4fa3bf59f1a99eed0712', json=data)
+        if response.json()["status"]=="ارسال موفق بود":
+            return Response({"message":"با موفقیت ارسال شد"},status=status.HTTP_200_OK)
+        else:
+            return Response({"message":"ارسال کد با خطایی مواجه شد."},status=status.HTTP_400_BAD_REQUEST) 
+        
+
+        
