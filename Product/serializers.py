@@ -395,7 +395,7 @@ class AllProductInstanceSerializer(serializers.ModelSerializer):
     dynamic_fields=serializers.SerializerMethodField()
     class Meta:
         model=ProductInstance
-        fields=("id","product_id","product_image","product_name","price","dynamic_fields")
+        fields=("id","product_id","product_image","product_name","price","dynamic_fields","discount")
 
     def get_product_id(self,obj):
         return obj.product.id
