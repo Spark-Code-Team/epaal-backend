@@ -277,7 +277,7 @@ class NotConfirmedProductSerialiser(serializers.ModelSerializer):
     status=serializers.SerializerMethodField()
     class Meta:
         model=Product
-        fields=("id","name","created_at","pircture","report_message","status")
+        fields=("id","name","created_at","pircture","reject_message","status")
 
     def get_pircture(self,obj):
         if ProductPicture.objects.filter(product=obj.id).exists():
@@ -286,7 +286,7 @@ class NotConfirmedProductSerialiser(serializers.ModelSerializer):
             return None
         
     def get_status(self,obj):
-        if obj.report_message:
+        if obj.reject_message:
             return "not_confirmed"
         else:
             return "unseen"
@@ -426,3 +426,9 @@ class CreateCartItemSerializer(serializers.ModelSerializer):
     class Meta:
         model=CartItem
         fields=("__all__")
+
+class AllProductAdminSerializer(serializers.ModelSerializer):
+    shop=ShopSerialiser(read_only=True)
+    class Meta:
+        model=Product
+        fields=("id","name","shop","created_at","is_confirm","reject_message")

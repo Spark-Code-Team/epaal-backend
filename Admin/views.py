@@ -1,6 +1,6 @@
 from django.shortcuts import render
 import requests
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated,IsAdminUser
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework import status
@@ -8,12 +8,13 @@ from rest_framework.views import APIView
 from django.db import IntegrityError, transaction
 import datetime
 from Bank.serializers import FacilityUseerSerialiser, GetUserDocumentSerializer
+from Product.serializers import AllProductAdminSerializer
 from Role.models import Role
 from Shop.models import ShopRequest
 from Shop.serializers import ShopRequestSerializer
 from User.models import CreditWallet, UserCreditTransaction
 from .models import Shop,Provider,ProviderBranch
-from Product.models import MidlevelTopic,MidlevelTopicProviderBranch
+from Product.models import MidlevelTopic,MidlevelTopicProviderBranch, Product
 from User.serializers import UserRegisterSerializer
 from .serializers import ProviderBranchSerializer, ProviderBranchWithProviderSerializer, ShopSerializer,AllShopSerializer,SingleShopSerializer,MidlevelTopicProviderBranchSerializer
 from django.db.models.signals import pre_save
@@ -394,3 +395,48 @@ class GetAllShopRequestView(APIView):
         if ShopRequest.objects.filter(**filter_kwargs).exists() == False:
             return Response({"data":{}},status=status.HTTP_200_OK)
         return Response({"data":ShopRequestSerializer(instance=ShopRequest.objects.filter(**filter_kwargs),many=True).data},status=status.HTTP_200_OK) 
+
+class GetAllProductAdminView(APIView):
+    permission_classes = (IsAdminUser,)
+
+    def get(self,request):
+        product_status=request.GET.get("status")
+        print(product_status)
+        if product_status not in ["waiting","confirmed","rejected"]:
+            return Response({"error":"send status"},status=status.HTTP_400_BAD_REQUEST)
+        if product_status == "waiting":
+            products=Product.objects.filter(is_confirm=False,reject_message__isnull=True)
+        elif product_status == "confirmed":
+            products=Product.objects.filter(is_confirm=True)
+        elif product_status == "rejected":
+            products=Product.objects.filter(is_confirm=False,reject_message__isnull=False)
+        if not products:
+            data=None
+        else:
+            data=AllProductAdminSerializer(instance=products, many=True).data
+        return Response({"data":data},status=status.HTTP_200_OK)
+    
+class ConfrimProductView(APIView):
+    permission_classes = (IsAdminUser,)
+
+    def post(self,request):
+        if request.data.get("product_id") is None or request.data["product_id"] == "":
+            return Response({"error":"send product_id"},status=status.HTTP_400_BAD_REQUEST)
+        if not Product.objects.filter(id=request.data["product_id"]).exists():
+            return Response({"error":"product not found"},status=status.HTTP_404_NOT_FOUND)
+        product=Product.objects.get(id=request.data["product_id"])
+        if request.data.get("is_confirmed") not in [True,False]:
+            return Response({"error":"please send is_confirmed"},status=status.HTTP_400_BAD_REQUEST)
+        if product.is_confirm or product.reject_message is not None:
+            return Response({"error":"product is already confirmed"},status=status.HTTP_400_BAD_REQUEST)
+        
+        if request.data.get("is_confirmed") is True:
+            product.is_confirm=True
+            product.save()
+        elif request.data.get("is_confirmed") is False:
+            if not request.data.get("reject_message"):
+                return Response({"error":"please send reject message"},status=status.HTTP_400_BAD_REQUEST)
+            product.is_confirm=False
+            product.reject_message=request.data.get("reject_message")
+            product.save()
+        return Response({"data":"product status changes successfully"},status=status.HTTP_200_OK)

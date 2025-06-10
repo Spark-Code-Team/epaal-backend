@@ -1,16 +1,6 @@
 from django.urls import path, include, re_path
 
-from .views import (ConnectMidlevelToProviderBranchView, GetAllShopRequestView, GetSingleShopRequestView,
-                    ShopView,ALLShopView,SingleShopView,
-                    GetBoundBranchOneMidTopicView,
-                    UnboundBranchOneMidTopicView,
-                    GetAllWaitingFacilityView,
-                    ConfirmWaitingDigitalView,
-                    ConfirmWaitingPhysicalView,
-                    ConfirmFinalWaitingView,
-                    RejectFacilityView,
-                    GetUserFileView
-                    )
+from .views import *
 app_name = 'Admin'
 urlpatterns = [
 
@@ -25,6 +15,8 @@ urlpatterns = [
     path("get_user_file", GetUserFileView.as_view(), name="get_user_file"),
     path("all_shop_request", GetAllShopRequestView.as_view(), name="all_shop_request"),
     path("single_shop_request", GetSingleShopRequestView.as_view(), name="single_shop_request"),
+    path("get_all_product_for_admin", GetAllProductAdminView.as_view(), name="get_all_product_for_admin"),
+    path("change_product_confrim", ConfrimProductView.as_view(), name="change_product_confrim"),
 
 
 

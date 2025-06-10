@@ -191,7 +191,7 @@ class Product(models.Model):
     num_of_rates=models.IntegerField(default=0)
     creator_id=models.ForeignKey(CustomUser,on_delete=models.CASCADE,related_name="creator_id")
     admin_confirm=models.BooleanField(default=False)
-    report_message=models.CharField(max_length=500)
+    reject_message=models.TextField(default=None,null=True,blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

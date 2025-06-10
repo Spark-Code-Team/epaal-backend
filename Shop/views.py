@@ -7,6 +7,8 @@ from Shop.models import ShopRequest
 from Shop.serializers import CreateShopRequestSerializer, ShopRequestSerializer
 from Product.models import StaticField, ToplevelTopic, MidlevelTopic, LowlevelTopic, ProductTopic
 from Product.serializers import GetFieldForCreateProductSerializer, GetFieldSerializer, ToplevelTopicSerializer, MidlevelTopicSerializer, LowlevelTopicSerializer, ProductTopicSerializer
+from .permissions import IsShopAdmin
+from Order.models import Order
 # Create your views here.
 
 class GetToplevelTopicView(APIView):
@@ -110,3 +112,7 @@ class CreateShopRequestView(APIView):
             return Response({"message":"Shop request created successfully"},status=status.HTTP_201_CREATED)
         return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
 
+class AllOrdersView(APIView):    
+    permission_classes = [IsShopAdmin]
+    def get(self,request):
+        pass
