@@ -30,6 +30,4 @@ urlpatterns = [
     path("create_product", CreateProductView.as_view(), name="create_product"),
     path("shop_product", ShopProductView.as_view(), name="shop_product"),
 
-
-
 ]

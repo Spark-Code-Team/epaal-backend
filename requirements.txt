@@ -13,3 +13,4 @@ psycopg2-binary==2.9.9
 gunicorn
 django-environ==0.12.0
 setuptools==80.7.1
+mysqlclient

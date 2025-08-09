@@ -22,7 +22,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 import os
-import environ
 
 env = environ.Env()
 environ.Env.read_env(os.path.join(BASE_DIR, '.env-dev'))
@@ -32,7 +31,7 @@ SECRET_KEY = env('SECRET_KEY',default='django-insecure-o5o2ox(p9ivp*g)l6ca$#@$_1
 DEBUG = env.bool("DEBUG", default=False)
 
 
-ALLOWED_HOSTS = ['185.79.97.38','localhost', '127.0.0.1', 'api.e-vaam.com']
+ALLOWED_HOSTS = ['185.79.97.38','localhost', '127.0.0.1', 'api.e-vaam.com',  'r24qbbbn-8000.euw.devtunnels.ms' , 'https://evaam-front.liara.run']
 
 
 
@@ -106,27 +105,27 @@ WSGI_APPLICATION = 'EvaamBack.wsgi.application'
 
 import config
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': env('POSTGRES_DB'), 
-        'HOST': env('POSTGRES_HOST'), 
-        'PORT': env('POSTGRES_PORT'), 
-        'USER': env('POSTGRES_USER'),
-        'PASSWORD': env('POSTGRES_PASSWORD'),
-    }
-}
-
 # DATABASES = {
 #     'default': {
-#         'ENGINE': 'django.db.backends.mysql', 
-#         'NAME': config.NAME,
-#         'USER': config.USER,
-#         'PASSWORD': config.PASSWORD,
-#         'HOST': config.HOST,  
-#         'PORT': '3306',
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': env('POSTGRES_DB'), 
+#         'HOST': env('POSTGRES_HOST'), 
+#         'PORT': env('POSTGRES_PORT'), 
+#         'USER': env('POSTGRES_USER'),
+#         'PASSWORD': env('POSTGRES_PASSWORD'),
 #     }
 # }
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql', 
+        'NAME': config.NAME,
+        'USER': config.USER,
+        'PASSWORD': config.PASSWORD,
+        'HOST': config.HOST,  
+        'PORT': '3306',
+    }
+}
 
 
 
@@ -284,4 +283,4 @@ from logging import Formatter
 
 
 # settings.py
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+# SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')

@@ -54,8 +54,8 @@ class CreateFacilityView(APIView):
         if sheba.validate(request.data["sheba_number"])==False:
             return Response({"message":" sheba_number is not valid"},status=status.HTTP_400_BAD_REQUEST)
         
-        if sheba.bank_data(request.data["sheba_number"])["nickname"]!=facility.bank.nickname:
-            return Response({"message":" sheba bank name is not valid"},status=status.HTTP_400_BAD_REQUEST)
+        # if sheba.bank_data(request.data["sheba_number"])["nickname"]!=facility.bank.nickname:
+        #     return Response({"message":" sheba bank name is not valid"},status=status.HTTP_400_BAD_REQUEST)
         
         if int(facility.max_value)<int(request.data["choosen_value"]):
             return Response({"message":" choosen_value is too much"},status=status.HTTP_400_BAD_REQUEST)
