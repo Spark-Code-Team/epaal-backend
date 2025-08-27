@@ -1,0 +1,12 @@
+.git
+__pycache__/
+*.pyc
+*.pyo
+*.log
+.env
+.env.*
+/vol/
+/media/
+/staticfiles/
+node_modules/
+.DS_Store

@@ -19,6 +19,10 @@ from django.urls import path, include
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 from EvaamBack import settings
 from django.conf.urls.static import static
+from django.http import JsonResponse
+
+def healthz(_r): return JsonResponse({"status":"ok"})
+
 urlpatterns = [
     path('admin/', admin.site.urls),
 
@@ -29,6 +33,7 @@ urlpatterns = [
     path("product/", include('Product.urls', namespace='products')),
     path("shop/", include('Shop.urls', namespace='shops')),
     path("facility/", include('Bank.urls', namespace='Banks')),
+     path("healthz/", healthz),
  ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
      
 
