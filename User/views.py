@@ -566,7 +566,7 @@ class BuyProductView(APIView):
 
         product_items=CartItem.objects.filter(cart=cart)
         if not product_items:
-            return Response({"erroe":"your cart is empty"},status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error":"your cart is empty"},status=status.HTTP_400_BAD_REQUEST)
         all_cost=0
         num_of_product=0
         for product_item in product_items:
@@ -671,7 +671,7 @@ class GetCartCostView(APIView):
 
         product_items=CartItem.objects.filter(cart=cart)
         if not product_items:
-            return Response({"erroe":"your cart is empty"},status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error":"your cart is empty"},status=status.HTTP_400_BAD_REQUEST)
         cost=0
         for product_item in product_items:
             cost+=self.final_cost(product_item.product_instance.price,product_item.product_instance.discount,product_item.quantity)
@@ -707,7 +707,7 @@ class PaymentOTPVeiw(APIView):
 
         product_items=CartItem.objects.filter(cart=cart)
         if not product_items:
-            return Response({"erroe":"your cart is empty"},status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error":"your cart is empty"},status=status.HTTP_400_BAD_REQUEST)
         cost=0
         for product_item in product_items:
             cost+=self.final_cost(product_item.product_instance.price,product_item.product_instance.discount,product_item.quantity)
