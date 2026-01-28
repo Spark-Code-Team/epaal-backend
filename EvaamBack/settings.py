@@ -23,15 +23,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 import os
 
-env = environ.Env()
-environ.Env.read_env(os.path.join(BASE_DIR, '.env-dev'))
+#env = environ.Env()
+#environ.Env.read_env(os.path.join(BASE_DIR, '.env-dev'))
 
 
-SECRET_KEY = env('SECRET_KEY',default='django-insecure-o5o2ox(p9ivp*g)l6ca$#@$_18h9!+2q)e7ff1myb$oin2hv#-')
-DEBUG = env.bool("DEBUG", default=False)
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-o5o2ox(p9ivp*g)l6ca$#@$_18h9!+2q)e7ff1myb$oin2hv#-')
+DEBUG = os.environ.get("DEBUG", False)
 
 
-ALLOWED_HOSTS = ['185.79.97.38','localhost', '127.0.0.1', 'api.e-vaam.com',  'r24qbbbn-8000.euw.devtunnels.ms' , 'https://evaam-front.liara.run']
+ALLOWED_HOSTS = ['185.79.97.38','localhost', '127.0.0.1', 'api.e-vaam.com',  'r24qbbbn-8000.euw.devtunnels.ms' , 'https://evaam-front.liara.run', 'api.zarmayeh.app', 'zarmayeh.app', '89.251.8.28']
 
 
 
@@ -105,27 +105,27 @@ WSGI_APPLICATION = 'EvaamBack.wsgi.application'
 
 import config
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': env('POSTGRES_DB'), 
-#         'HOST': env('POSTGRES_HOST'), 
-#         'PORT': env('POSTGRES_PORT'), 
-#         'USER': env('POSTGRES_USER'),
-#         'PASSWORD': env('POSTGRES_PASSWORD'),
-#     }
-# }
-
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql', 
-        'NAME': config.NAME,
-        'USER': config.USER,
-        'PASSWORD': config.PASSWORD,
-        'HOST': config.HOST,  
-        'PORT': '3306',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.environ.get('POSTGRES_DB', 'epaal_db'),
+        'HOST': os.environ.get('POSTGRES_HOST', 'epaal_db'),
+        'PORT': os.environ.get('POSTGRES_PORT', '5432'),
+        'USER': os.environ.get('POSTGRES_USER', 'spark'),
+        'PASSWORD': os.environ.get('POSTGRES_PASSWORD', '(Abasaleh-12)'),
     }
 }
+
+#DATABASES = {
+#    'default': {
+#        'ENGINE': 'django.db.backends.mysql',
+#        'NAME': config.NAME,
+#        'USER': config.USER,
+#        'PASSWORD': config.PASSWORD,
+#        'HOST': config.HOST,
+#        'PORT': '3306',
+#    }
+#}
 
 
 
@@ -181,7 +181,7 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
-        'rest_framework.renderers.BrowsableAPIRenderer', 
+        'rest_framework.renderers.BrowsableAPIRenderer',
     ),
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',

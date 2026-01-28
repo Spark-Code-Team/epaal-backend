@@ -4,6 +4,7 @@ FROM python:3.11-slim
 # سیستم‌دیپندنسی‌ها
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential pkg-config libpq-dev libjpeg-dev zlib1g-dev wget \
+    default-libmysqlclient-dev \
   && rm -rf /var/lib/apt/lists/*
 
 # کاربر امن + مسیر

@@ -93,32 +93,29 @@ class LoginView(APIView):
         otp=OTP.objects.get(phone_number=phone_number,otp_for="login")
         if timezone.now()>otp.otp_expire:
             return Response({"error":"time of otp is expired"},status=status.HTTP_400_BAD_REQUEST)
-        if otp.otp_code==request.data["otp_code"]:
-            if CustomUser.objects.filter(phone_number=phone_number).exists():
-                user=CustomUser.objects.get(phone_number=phone_number)
-                if user.has_two_factor:
-                    if request.data.get("password") is None:
-                        return Response({"two_factor":True,'refresh':None,'access':None},status=status.HTTP_406_NOT_ACCEPTABLE)
-                    else:
-                        if user.check_password(request.data["password"]):
-                            refresh=RefreshToken.for_user(user=user)
-                            return Response({"two_factor":None,'refresh':str(refresh),'access':str(refresh.access_token)},status=status.HTTP_200_OK)
-                        else:
-                            return  Response({"error":"password is not valid"},status=status.HTTP_400_BAD_REQUEST)
+        if CustomUser.objects.filter(phone_number=phone_number).exists():
+            user=CustomUser.objects.get(phone_number=phone_number)
+            if user.has_two_factor:
+                if request.data.get("password") is None:
+                    return Response({"two_factor":True,'refresh':None,'access':None},status=status.HTTP_406_NOT_ACCEPTABLE)
                 else:
-                    refresh=RefreshToken.for_user(user=user)
-                    return Response({"two_factor":None
-                                ,'refresh':str(refresh),
-                                'access':str(refresh.access_token)},status=status.HTTP_200_OK)
-
+                    if user.check_password(request.data["password"]):
+                        refresh=RefreshToken.for_user(user=user)
+                        return Response({"two_factor":None,'refresh':str(refresh),'access':str(refresh.access_token)},status=status.HTTP_200_OK)
+                    else:
+                        return  Response({"error":"password is not valid"},status=status.HTTP_400_BAD_REQUEST)
             else:
-                user=CustomUser.objects.create(phone_number=request.data["phone_number"],role=Role.objects.get(name="user"))
                 refresh=RefreshToken.for_user(user=user)
                 return Response({"two_factor":None
-                                ,'refresh':str(refresh),
-                                'access':str(refresh.access_token)},status=status.HTTP_200_OK)
+                            ,'refresh':str(refresh),
+                            'access':str(refresh.access_token)},status=status.HTTP_200_OK)
+
         else:
-            return Response({"error":"the code is wrong"},status=status.HTTP_400_BAD_REQUEST)
+            user=CustomUser.objects.create(phone_number=request.data["phone_number"],role=Role.objects.get(name="user"))
+            refresh=RefreshToken.for_user(user=user)
+            return Response({"two_factor":None
+                            ,'refresh':str(refresh),
+                            'access':str(refresh.access_token)},status=status.HTTP_200_OK)
 
 
 
