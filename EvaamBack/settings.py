@@ -32,7 +32,7 @@ import os
 SECRET_KEY = os.environ.get(
     "SECRET_KEY", "django-insecure-o5o2ox(p9ivp*g)l6ca$#@$_18h9!+2q)e7ff1myb$oin2hv#-"
 )
-DEBUG = os.environ.get("DEBUG", False)
+DEBUG = os.environ.get("DEBUG", True)
 
 
 ALLOWED_HOSTS = [
@@ -42,9 +42,12 @@ ALLOWED_HOSTS = [
     "api.e-vaam.com",
     "r24qbbbn-8000.euw.devtunnels.ms",
     "https://evaam-front.liara.run",
+    "api.e-vaam.com",
+    "e-vaam.com",
     "api.zarmayeh.app",
     "zarmayeh.app",
     "89.251.8.28",
+    "5.217.110.165",
 ]
 
 
@@ -247,38 +250,35 @@ STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
 # log gile
-import logging
 from logging import Formatter
 
-# LOGGING = {
-#     "version": 1,
-#     "disable_existing_loggers": False,
-#     "formatters": {
-#         "standard": {
-#             "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-#         },
-#     },
-#     "handlers": {
-#         "file": {
-#             "level": "INFO",
-#             "class": "logging.FileHandler",
-#             "filename": os.getcwd() + "/logfile.log",
-#             "formatter": "standard",
-#         },
-#         "console": {
-#             "level": "INFO",
-#             "class": "logging.StreamHandler",
-#             "formatter": "standard",
-#         },
-#     },
-#     "loggers": {
-#         "django": {
-#             "handlers": ["file", "console"],
-#             "level": "INFO",
-#             "propagate": True,
-#         },
-#     },
-# }
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "standard": {"format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s"},
+    },
+    "handlers": {
+        "file": {
+            "level": "INFO",
+            "class": "logging.FileHandler",
+            "filename": os.getcwd() + "/logfile.log",
+            "formatter": "standard",
+        },
+        "console": {
+            "level": "INFO",
+            "class": "logging.StreamHandler",
+            "formatter": "standard",
+        },
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["file", "console"],
+            "level": "INFO",
+            "propagate": True,
+        },
+    },
+}
 
 
 # settings.py
