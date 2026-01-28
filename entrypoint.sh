@@ -11,5 +11,9 @@ cd /opt/epaal-backend
 python manage.py migrate --noinput
 python manage.py collectstatic --noinput
 
+# Load fixture data
+echo "Loading fixture data..."
+python manage.py loaddata fixtures/roles.json
+
 # Start Gunicorn
 exec gunicorn EvaamBack.wsgi:application --bind 0.0.0.0:8000 --workers 3 --timeout 120
